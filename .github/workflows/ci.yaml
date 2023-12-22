@@ -43,7 +43,7 @@ jobs:
       - name: Set action status
         id: status
         run: |
-          minChallengePassed=$(cat response.json | jq -r '.minChallangePassed')
+          minChallengePassed=$(cat response.json | jq -r '.minChallengePassed')
           report=$(cat response.json | jq -r '.md')
 
           echo "$report" > $GITHUB_STEP_SUMMARY
