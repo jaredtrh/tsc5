@@ -45,7 +45,7 @@ jobs:
         run: |
           minChallengePassed=$(cat response.json | jq -r '.minChallengePassed')
           report=$(cat response.json | jq -r '.md')
-          echo "test $minChallengePassed %report"
+          cat response.json
 
           echo "$report" > $GITHUB_STEP_SUMMARY
           if [ "$minChallengePassed" == "true" ]; then
