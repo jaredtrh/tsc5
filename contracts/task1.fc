@@ -39,7 +39,7 @@
 
         store_data(public_key, now() + locked_for, receiver, new_seqno);
     } elseif (op == 0xbb4be234) {
-        throw_if(124, now() < execution_time);
+        throw_if(124, now() <= execution_time);
 
         send_raw_message(
             begin_cell()
