@@ -62,4 +62,14 @@ export class Task1 implements Contract {
             body: beginCell().storeUint(0xbb4be234, 32).endCell(),
         });
     }
+    
+    async getSeqno(provider: ContractProvider): Promise<number> {
+        const { stack } = await provider.get('get_seqno', []);
+        return stack.readNumber();
+    }
+    
+    async getExecutionTime(provider: ContractProvider): Promise<number> {
+        const { stack } = await provider.get('get_execution_time', []);
+        return stack.readNumber();
+    }
 }

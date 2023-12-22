@@ -51,15 +51,14 @@ describe('Task1', () => {
     it('should', async () => {
         const claimer = await blockchain.treasury('claimer');
 
-        const claimResult = await task1.sendClaim(claimer.getSender(), toNano('1000'));
+        const claimResult = await task1.sendClaim(claimer.getSender(), toNano('0.05'));
         
         expect(claimResult.transactions).toHaveTransaction({
             from: task1.address,
             to: receiver.address,
-            value: undefined,
             success: true,
         });
-
+        
         printTransactionFees(claimResult.transactions);
     });
 });
