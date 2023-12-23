@@ -49,6 +49,7 @@ export class Task1 implements Contract {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell()
                 .storeUint(0x9df10277, 32)
+                .storeUint(0, 64)
                 .storeBuffer(sign(cell.hash(), secretKey))
                 .storeRef(cell)
                 .endCell(),
@@ -59,7 +60,10 @@ export class Task1 implements Contract {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().storeUint(0xbb4be234, 32).endCell(),
+            body: beginCell()
+                .storeUint(0xbb4be234, 32)
+                .storeUint(0, 64)
+                .endCell(),
         });
     }
     

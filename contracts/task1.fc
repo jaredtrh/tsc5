@@ -24,6 +24,7 @@
     (int public_key, int execution_time, slice receiver, int seqno) = load_data();
     
     int op = in_msg_body~load_uint(32);
+    in_msg_body~skip_bits(64);
     if (op == 0x9df10277) {
         slice signature = in_msg_body~load_bits(512);
         cell ref = in_msg_body.preload_ref();
