@@ -49,9 +49,7 @@ describe('Task1', () => {
     });
 
     it('should', async () => {
-        const claimer = await blockchain.treasury('claimer');
-
-        const claimResult = await task1.sendClaim(claimer.getSender(), toNano('0.05'));
+        const claimResult = await task1.sendClaim();
         
         expect(claimResult.transactions).toHaveTransaction({
             from: task1.address,

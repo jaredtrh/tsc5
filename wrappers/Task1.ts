@@ -38,33 +38,29 @@ export class Task1 implements Contract {
         });
     }
 
-    async sendUpdate(provider: ContractProvider, via: Sender, value: bigint, secretKey: Buffer, lockedFor: number, newSeqno: number) {
+    async sendUpdate(provider: ContractProvider, secretKey: Buffer, lockedFor: number, newSeqno: number) {
         const cell = beginCell()
             .storeUint(lockedFor, 32)
             .storeUint(newSeqno, 32)
             .endCell();
         
-        await provider.internal(via, {
-            value,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell()
+        await provider.external(
+            beginCell()
                 .storeUint(0x9df10277, 32)
                 .storeUint(0, 64)
                 .storeBuffer(sign(cell.hash(), secretKey))
                 .storeRef(cell)
                 .endCell(),
-        });
+        );
     }
 
-    async sendClaim(provider: ContractProvider, via: Sender, value: bigint) {
-        await provider.internal(via, {
-            value,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell()
+    async sendClaim(provider: ContractProvider) {
+        await provider.external(
+            beginCell()
                 .storeUint(0xbb4be234, 32)
                 .storeUint(0, 64)
                 .endCell(),
-        });
+        );
     }
     
     async getSeqno(provider: ContractProvider): Promise<number> {
