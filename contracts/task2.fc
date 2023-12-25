@@ -10,7 +10,7 @@
         begin_cell()
             .store_slice(admin_address)
             .store_dict(users)
-            .store_uint(total_share)
+            .store_uint(total_share, 32)
             .end_cell()
     );
 }
