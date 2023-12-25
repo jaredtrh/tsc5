@@ -1,9 +1,15 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from 'ton-core';
+import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode, Dictionary } from 'ton-core';
 
-export type Task2Config = {};
+export type Task2Config = {
+    admin_address: Address,
+    users: Dictionary<Address, number>,
+};
 
 export function task2ConfigToCell(config: Task2Config): Cell {
-    return beginCell().endCell();
+    return beginCell()
+        .storeAddress(config.admin_address)
+        .storeDict(config.users)
+        .endCell();
 }
 
 export class Task2 implements Contract {
@@ -25,5 +31,17 @@ export class Task2 implements Contract {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell().endCell(),
         });
+    }
+
+    async getUsers(provider: ContractProvider): Promise<Cell> {
+        const { stack } = await provider.get('get_users', []);
+        return stack.readCell();
+    }
+
+    async getUserShare(provider: ContractProvider, userAddress: Address): Promise<number> {
+        const { stack } = await provider.get('get_user_share', [
+            { type: "slice", cell: beginCell().storeAddress(userAddress).endCell() }
+        ]);
+        return stack.readNumber();
     }
 }
