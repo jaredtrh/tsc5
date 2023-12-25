@@ -41,10 +41,11 @@
         throw_if(121, locked_for <= 0);
         int time = now();
         throw_if(122, execution_time < time);
-        throw_if(123, time + locked_for < execution_time);
+        int new_execution_time = time + locked_for;
+        throw_if(123, new_execution_time < execution_time);
         accept_message();
 
-        store_data(public_key, time + locked_for, receiver, new_seqno);
+        store_data(public_key, new_execution_time, receiver, new_seqno);
     } elseif (op == 0xbb4be234) {
         throw_if(124, now() <= execution_time);
         accept_message();
