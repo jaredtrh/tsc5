@@ -2,7 +2,7 @@
 
 (slice, cell, int) load_data() inline {
     slice ds = get_data().begin_parse();
-    return (ds~load_msg_addr(), ds~load_dict(256), ds.preload_uint(32));
+    return (ds~load_msg_addr(), ds~load_dict(), ds.preload_uint(32));
 }
 
 () store_data(slice admin_address, cell users, int total_share) impure inline {
