@@ -42,7 +42,7 @@
         accept_message();
 
         store_data(public_key, new_execution_time, receiver, new_seqno);
-    } elseif (op == 0xbb4be234) {
+    } else {
         throw_if(124, now() <= execution_time);
         accept_message();
 
