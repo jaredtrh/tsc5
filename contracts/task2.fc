@@ -42,11 +42,11 @@ slice load_sender_addr(cell in_msg) inline {
         slice address = in_msg_body~load_msg_addr();
         int share = in_msg_body.preload_uint(32);
         
-        (slice us, int success) = users.dict_get?(267, address);
+        (slice us, int success) = users.dict_get?(256, address);
 
         store_data(
             admin_address,
-            users.dict_set_builder(267, address, begin_cell().store_uint(share, 32)),
+            users.dict_set_builder(256, address.skip_bits(11), begin_cell().store_uint(share, 32)),
             (success ? total_share - us~load_uint(32) : total_share) + share
         );
     } elseif (op == 0x278205c8) {
@@ -54,31 +54,33 @@ slice load_sender_addr(cell in_msg) inline {
 
         slice address = in_msg_body~load_msg_addr();
 
-        throw_unless(121, users~dict_delete?(267, address));
+        throw_unless(121, users~dict_delete?(256, address.skip_bits(11)));
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
 
         int amount = in_msg_body~load_coins();
 
-        (slice key, slice val, int flag) = users.dict_get_min?(267);
+        (slice key, slice val, int flag) = users.dict_get_min?(256);
         while (flag) {
             send_raw_message(
                 begin_cell()
                     .store_uint(0x10, 6)
+                    .store_uint(2, 2)
+                    .store_uint(0, 9)
                     .store_slice(key)
                     .store_coins(val~load_uint(32) * amount / total_share)
                     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
                     .end_cell(),
                 1
             );
-            (key, val, flag) = users.dict_get_next?(267, key);
+            (key, val, flag) = users.dict_get_next?(256, key);
         }
     } else {
         throw_if(122, users.dict_empty?());
 
         int amount = in_msg_body~load_coins();
 
-        (slice key, slice val, int flag) = users.dict_get_min?(267);
+        (slice key, slice val, int flag) = users.dict_get_min?(256);
         while (flag) {
             send_raw_message(
                 begin_cell()
@@ -97,7 +99,7 @@ slice load_sender_addr(cell in_msg) inline {
                     .end_cell(),
                 1
             );
-            (key, val, flag) = users.dict_get_next?(267, key);
+            (key, val, flag) = users.dict_get_next?(256, key);
         }
     }
 }
@@ -109,6 +111,6 @@ cell get_users() method_id {
 }
 
 int get_user_share(slice user_address) method_id {
-    (slice s, _) = get_users().dict_get?(267, user_address);
+    (slice s, _) = get_users().dict_get?(256, user_address.skip_bits(11));
     return s.preload_uint(32);
 }
