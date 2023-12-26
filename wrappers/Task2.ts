@@ -1,13 +1,13 @@
 import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode, Dictionary } from 'ton-core';
 
 export type Task2Config = {
-    admin_address: Address,
+    adminAddress: Address,
     users: Dictionary<Address, number>,
 };
 
 export function task2ConfigToCell(config: Task2Config): Cell {
     return beginCell()
-        .storeAddress(config.admin_address)
+        .storeAddress(config.adminAddress)
         .storeDict(config.users)
         .endCell();
 }
@@ -30,6 +30,43 @@ export class Task2 implements Contract {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell().endCell(),
+        });
+    }
+
+    async sendAddUser(provider: ContractProvider, via: Sender, value: bigint, address: Address, share: number) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+                .storeUint(0x368ddef3, 32)
+                .storeUint(0, 64)
+                .storeAddress(address)
+                .storeUint(share, 32)
+                .endCell(),
+        });
+    }
+
+    async sendRemoveUser(provider: ContractProvider, via: Sender, value: bigint, address: Address) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+                .storeUint(0x278205c8, 32)
+                .storeUint(0, 64)
+                .storeAddress(address)
+                .endCell(),
+        });
+    }
+
+    async sendSplitTon(provider: ContractProvider, via: Sender, value: bigint, amount: number) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+                .storeUint(0x068530b3, 32)
+                .storeUint(0, 64)
+                .storeCoins(amount)
+                .endCell(),
         });
     }
 
