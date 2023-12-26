@@ -71,7 +71,6 @@ slice load_sender_addr(cell in_msg) inline {
                     .end_cell(),
                 1
             );
-            ~dump(key);
             (key, val, flag) = users.dict_get_next?(267, key);
         } until (~ flag);
     } else {
