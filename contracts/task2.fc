@@ -90,11 +90,17 @@ slice load_sender_addr(cell in_msg) inline {
                     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
                     .store_uint(0x0f8a7ea5, 32)
                     .store_uint(0, 64)
-                    .store_uint(val~load_uint(32) * amount / total_share, 16)
+                    .store_uint(4, 16)
+                    .store_uint(val~load_uint(32) * amount / total_share, 32)
+                    .store_uint(2, 2)
+                    .store_uint(0, 9)
                     .store_slice(key)
+                    .store_uint(2, 2)
+                    .store_uint(0, 9)
                     .store_slice(key)
                     .store_uint(0, 1)
                     .store_uint(1, 16)
+                    .store_uint(1, 8)
                     .store_uint(0, 1)
                     .end_cell(),
                 1
