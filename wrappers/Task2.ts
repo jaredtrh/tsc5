@@ -58,7 +58,7 @@ export class Task2 implements Contract {
         });
     }
 
-    async sendSplitTon(provider: ContractProvider, via: Sender, value: bigint, amount: number) {
+    async sendSplitTon(provider: ContractProvider, via: Sender, value: bigint, amount: number | bigint) {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,

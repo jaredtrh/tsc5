@@ -1,4 +1,4 @@
-import { Blockchain, SandboxContract, TreasuryContract, printTransactionFees } from '@ton-community/sandbox';
+import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
 import { Cell, Dictionary, toNano } from 'ton-core';
 import { Task2 } from '../wrappers/Task2';
 import '@ton-community/test-utils';
@@ -75,20 +75,22 @@ describe('Task2', () => {
         const user1 = await blockchain.treasury('user1');
         const user2 = await blockchain.treasury('user2');
 
-        await task2.sendAddUser(admin.getSender(), toNano('0.05'), user1.address, 50);
-        //await task2.sendAddUser(admin.getSender(), toNano('0.05'), user2.address, 15);
-        const splitTonResult = await task2.sendSplitTon(admin.getSender(), toNano('5'), 123);
-        //console.log(splitTonResult.transactions);
+        await task2.sendAddUser(admin.getSender(), toNano('0.05'), user1.address, 25);
+        await task2.sendAddUser(admin.getSender(), toNano('0.05'), user2.address, 75);
+        const splitTonResult = await task2.sendSplitTon(admin.getSender(), toNano('0.05'), toNano('0.05'));
+        
         expect(splitTonResult.transactions).toHaveTransaction({
             from: task2.address,
             to: user1.address,
             success: true,
+            value: toNano('0.0125'),
         });
-        /*
+        
         expect(splitTonResult.transactions).toHaveTransaction({
             from: task2.address,
             to: user2.address,
             success: true,
-        });*/
+            value: toNano('0.0375'),
+        });
     });
 });
