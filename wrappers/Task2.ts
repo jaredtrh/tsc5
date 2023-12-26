@@ -70,6 +70,18 @@ export class Task2 implements Contract {
         });
     }
 
+    async sendTransferNotification(provider: ContractProvider, via: Sender, value: bigint, amount: number | bigint) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+                .storeUint(0x7362d09c, 32)
+                .storeUint(0, 64)
+                .storeCoins(amount)
+                .endCell(),
+        });
+    }
+
     async getUsers(provider: ContractProvider): Promise<Cell> {
         const { stack } = await provider.get('get_users', []);
         return stack.readCell();

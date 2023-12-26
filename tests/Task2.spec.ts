@@ -93,4 +93,27 @@ describe('Task2', () => {
             value: toNano('0.0375'),
         });
     });
+
+    it('should transfer notification', async () => {
+        const user1 = await blockchain.treasury('user1');
+        const user2 = await blockchain.treasury('user2');
+
+        await task2.sendAddUser(admin.getSender(), toNano('0.05'), user1.address, 25);
+        await task2.sendAddUser(admin.getSender(), toNano('0.05'), user2.address, 75);
+        const splitTonResult = await task2.sendTransferNotification(admin.getSender(), toNano('0.05'), toNano('0.05'));
+        
+        expect(splitTonResult.transactions).toHaveTransaction({
+            from: task2.address,
+            to: user1.address,
+            success: true,
+            value: toNano('0.0125'),
+        });
+        
+        expect(splitTonResult.transactions).toHaveTransaction({
+            from: task2.address,
+            to: user2.address,
+            success: true,
+            value: toNano('0.0375'),
+        });
+    });
 });
