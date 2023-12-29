@@ -3,6 +3,7 @@ import { Cell, toNano } from 'ton-core';
 import { Task4Basic } from '../wrappers/Task4Basic';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
+import { task2ConfigToCell } from '../wrappers/Task2';
 
 describe('Task4Basic', () => {
     let code: Cell;
@@ -34,5 +35,35 @@ describe('Task4Basic', () => {
     it('should deploy', async () => {
         // the check is done inside beforeEach
         // blockchain and task4Basic are ready to use
+    });
+
+    it('should maze', async () => {
+        const [changes, obstacles, length, maze] = await task4Basic.getSolve([
+            "XXXXXXE.",
+            "XX.XXXX.",
+            "X.X.XX.X",
+            ".?XSXXX.",
+            "?.XXXXX.",
+            "XX..XXX.",
+            "XX..XX?X",
+            "XXX...XX",
+            /*
+            "SX.?X",
+            ".XX.X",
+            "X.?..",
+            ".??..",
+            "X?...",
+            "..X.X",
+            "..?..",
+            "X...E",*/
+        ]);
+
+        console.log(changes);
+        console.log(obstacles);
+        console.log(length);
+        let s = "";
+        for (let i = 0; i < 8; ++i)
+            s += maze.readString() + "\n";
+        console.log(s);
     });
 });

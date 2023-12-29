@@ -1,5 +1,120 @@
 #include "imports/stdlib.fc";
 
-() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+forall X -> (tuple, ()) set_at(tuple t, X value, int index) asm "SETINDEXVAR";
+forall X -> (tuple) to_tuple (X x) asm "NOP";
 
+() recv_internal() impure {
+
+}
+
+int get(tuple maze, int i, int j) inline {
+    return maze.at(i).skip_bits(j * 8).preload_uint(8);
+}
+
+(int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
+    int si = 0;
+    int sj = 0;
+    int ei = 0;
+    int ej = 0;
+    int obs = 0;
+    int i = 0;
+    while (i < n) {
+        int j = 0;
+        while (j < m) {
+            int x = maze.get(i, j);
+            if (x == "S"u) {
+                si = i;
+                sj = j;
+            } elseif (x == "E"u) {
+                ei = i;
+                ej = j;
+            } elseif (x == "?"u) {
+                obs += 1;
+            }
+            j += 1;
+        }
+        i += 1;
+    }
+    
+    tuple list = cons(triple(si, sj, 0), null());
+    cell parent = new_dict();
+
+    int short = 0;
+    int cnt = obs;
+
+    tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
+    int length = 0;
+    do {
+        tuple new_list = null();
+        while (~ list.null?()) {
+            (int i, int j, int k) = untriple(list~list_next());
+            if (maze.get(i, j) == "E"u) {
+                if (k < cnt) {
+                    cnt = k;
+                    short = length;
+                }
+            }
+
+            int idx = 0;
+            while (idx < 8) {
+                (int di, int dj) = unpair(deltas.at(idx));
+                int ni = i + di;
+                int nj = j + dj;
+                if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
+                    int x = maze.get(ni, nj);
+                    if (x != "X"u) {
+                        int nk = x == "?"u ? min(obs - 1, k + 1) : k;
+                        int index = (ni * m + nj) * obs + nk;
+                        (slice s, int success) = parent.udict_get?(12, index);
+                        if (~ success) {
+                            new_list = cons(triple(ni, nj, nk), new_list);
+                            parent~udict_set_builder(12, index, begin_cell().store_uint(i, 3).store_uint(j, 3).store_uint(k, 6));
+                        }
+                    }
+                }
+                idx += 1;
+            }
+        }
+        list = new_list;
+        length += 1;
+    } until (list.null?());
+    
+    if (cnt == obs) {
+        return (-1, 0, 0, null());
+    }
+
+    cell ans_dict = new_dict();
+
+    int i = ei;
+    int j = ej;
+    int k = cnt;
+    while ((i != si) | (j != sj)) {
+        ans_dict~udict_set_builder(6, i * m + j, begin_cell().store_uint(1, 1));
+
+        (slice s, _) = parent.udict_get?(12, (i * m + j) * obs + k);
+        i = s~load_uint(3);
+        j = s~load_uint(3);
+        k = s.preload_uint(6);
+    }
+    ans_dict~udict_delete?(6, ei * m + ej);
+
+    tuple ans = empty_tuple();
+    int i = 0;
+    while (i < n) {
+        builder b = begin_cell();
+        int j = 0;
+        while (j < m) {
+            (_, int success) = ans_dict.udict_get?(6, i * m + j);
+            if (success) {
+                b~store_uint("!"u, 8);
+            } else {
+                b~store_uint(maze.get(i, j), 8);
+            }
+            j += 1;
+        }
+        ans~tpush(b.end_cell().begin_parse());
+        i += 1;
+    }
+
+    return (-1, cnt, short, ans);
 }

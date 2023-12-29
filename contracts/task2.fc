@@ -91,7 +91,7 @@ slice load_sender_addr(cell in_msg) inline {
             send_raw_message(
                 begin_cell()
                     .store_uint(0x10, 6)
-                    .store_slice(sender_address)
+                    .store_slice(admin_address)
                     .store_coins(20000000)
                     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
                     .store_uint(0x0f8a7ea5, 32)
