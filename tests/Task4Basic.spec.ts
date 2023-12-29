@@ -38,7 +38,16 @@ describe('Task4Basic', () => {
     });
 
     it('should maze', async () => {
-        const [changes, obstacles, length, maze] = await task4Basic.getSolve([
+        const maze = [
+            /*"S.......",
+            "........",
+            "........",
+            "........",
+            "........",
+            "........",
+            "...E....",
+            "........",
+            
             "XXXXXXE.",
             "XX.XXXX.",
             "X.X.XX.X",
@@ -47,7 +56,7 @@ describe('Task4Basic', () => {
             "XX..XXX.",
             "XX..XX?X",
             "XXX...XX",
-            /*
+            */
             "SX.?X",
             ".XX.X",
             "X.?..",
@@ -55,15 +64,21 @@ describe('Task4Basic', () => {
             "X?...",
             "..X.X",
             "..?..",
-            "X...E",*/
-        ]);
+            "X...E",
+        ];
+        const [changes, obstacles, length, ans] = await task4Basic.getSolve(maze);
 
         console.log(changes);
         console.log(obstacles);
         console.log(length);
         let s = "";
-        for (let i = 0; i < 8; ++i)
-            s += maze.readString() + "\n";
+        for (let i = 0; i < maze.length; ++i) {
+            let row = ans.readTuple();
+            for (let j = 0; j < maze[0].length; ++j) {
+                s += String.fromCharCode(row.readNumber());
+            }
+            s += "\n";
+        }
         console.log(s);
     });
 });

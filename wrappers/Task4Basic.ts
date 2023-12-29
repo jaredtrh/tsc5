@@ -27,24 +27,27 @@ export class Task4Basic implements Contract {
         });
     }
 
-    async getSolve(provider: ContractProvider, maze: string[]): Promise<[bigint, bigint, bigint, TupleReader]> {
+    async getSolve(provider: ContractProvider, maze: string[]): Promise<[number, number, number, TupleReader]> {
         const { stack } = await provider.get('solve', [
             {
-                type: "int",
-                value: BigInt(maze.length)
+                type: 'int',
+                value: BigInt(maze.length),
             },
             {
-                type: "int",
-                value: BigInt(maze[0].length)
+                type: 'int',
+                value: BigInt(maze[0].length),
             },
             {
-                type: "tuple",
+                type: 'tuple',
                 items: maze.map(row => ({
-                    type: "slice",
-                    cell: beginCell().storeStringTail(row).endCell(),
+                    type: 'tuple',
+                    items: row.split('').map(x => ({
+                        type: 'int',
+                        value: BigInt(x.charCodeAt(0)),
+                    })),
                 })),
             },
         ]);
-        return [stack.readBigNumber(), stack.readBigNumber(), stack.readBigNumber(), stack.readTuple()];
+        return [stack.readNumber(), stack.readNumber(), stack.readNumber(), stack.readTuple()];
     }
 }

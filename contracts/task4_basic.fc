@@ -8,7 +8,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 }
 
 int get(tuple maze, int i, int j) inline {
-    return maze.at(i).begin_parse().skip_bits(j * 8).preload_uint(8);
+    return maze.at(i).at(j);
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
@@ -40,7 +40,7 @@ int get(tuple maze, int i, int j) inline {
     cell parent = new_dict();
 
     int short = 0;
-    int cnt = obs;
+    int cnt = obs + 1;
 
     tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
     int length = 0;
@@ -63,9 +63,9 @@ int get(tuple maze, int i, int j) inline {
                 if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
                     int x = maze.get(ni, nj);
                     if (x != "X"u) {
-                        int nk = x == "?"u ? min(obs - 1, k + 1) : k;
-                        int index = (ni * m + nj) * obs + nk;
-                        (slice s, int success) = parent.udict_get?(12, index);
+                        int nk = x == "?"u ? min(obs, k + 1) : k;
+                        int index = (ni * m + nj) * (obs + 1) + nk;
+                        (_, int success) = parent.udict_get?(12, index);
                         if (~ success) {
                             new_list = cons(triple(ni, nj, nk), new_list);
                             parent~udict_set_builder(12, index, begin_cell().store_uint(i, 3).store_uint(j, 3).store_uint(k, 6));
@@ -79,7 +79,7 @@ int get(tuple maze, int i, int j) inline {
         length += 1;
     } until (list.null?());
     
-    if (cnt == obs) {
+    if (cnt > obs) {
         return (-1, 0, 0, null());
     }
 
@@ -91,7 +91,7 @@ int get(tuple maze, int i, int j) inline {
     while ((i != si) | (j != sj)) {
         ans_dict~udict_set_builder(6, i * m + j, begin_cell().store_uint(1, 1));
 
-        (slice s, _) = parent.udict_get?(12, (i * m + j) * obs + k);
+        (slice s, _) = parent.udict_get?(12, (i * m + j) * (obs + 1) + k);
         i = s~load_uint(3);
         j = s~load_uint(3);
         k = s.preload_uint(6);
@@ -101,14 +101,14 @@ int get(tuple maze, int i, int j) inline {
     tuple ans = empty_tuple();
     int i = 0;
     while (i < n) {
-        builder b = begin_cell();
+        tuple row = empty_tuple();
         int j = 0;
         while (j < m) {
             (_, int success) = ans_dict.udict_get?(6, i * m + j);
-            b~store_uint(success ? "!"u : maze.get(i, j), 8);
+            row~tpush(success ? "!"u : maze.get(i, j));
             j += 1;
         }
-        ans~tpush(b.end_cell());
+        ans~tpush(row);
         i += 1;
     }
 
