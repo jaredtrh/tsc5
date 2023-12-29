@@ -101,18 +101,14 @@ int get(tuple maze, int i, int j) inline {
     tuple ans = empty_tuple();
     int i = 0;
     while (i < n) {
-        builder b = begin_cell();
+        tuple row = empty_tuple();
         int j = 0;
         while (j < m) {
             (_, int success) = ans_dict.udict_get?(6, i * m + j);
-            if (success) {
-                b~store_uint("!"u, 8);
-            } else {
-                b~store_uint(maze.get(i, j), 8);
-            }
+            row~tpush(success ? "!"u : maze.get(i, j));
             j += 1;
         }
-        ans~tpush(b.end_cell().begin_parse());
+        ans~tpush(row);
         i += 1;
     }
 
