@@ -8,7 +8,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 }
 
 int get(tuple maze, int i, int j) inline {
-    return maze.at(i).at(j); ;;maze.at(i).skip_bits(j * 8).preload_uint(8);
+    return maze.at(i).begin_parse().skip_bits(j * 8).preload_uint(8);
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
@@ -101,14 +101,14 @@ int get(tuple maze, int i, int j) inline {
     tuple ans = empty_tuple();
     int i = 0;
     while (i < n) {
-        tuple row = empty_tuple();
+        builder b = begin_cell();
         int j = 0;
         while (j < m) {
             (_, int success) = ans_dict.udict_get?(6, i * m + j);
-            row~tpush(success ? "!"u : maze.get(i, j));
+            b~store_uint(success ? "!"u : maze.get(i, j), 8);
             j += 1;
         }
-        ans~tpush(row);
+        ans~tpush(b.end_cell());
         i += 1;
     }
 
