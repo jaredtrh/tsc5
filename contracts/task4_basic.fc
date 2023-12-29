@@ -8,7 +8,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 }
 
 int get(tuple maze, int i, int j) inline {
-    return maze.at(i).skip_bits(j * 8).preload_uint(8);
+    return maze.at(i).at(j); ;;maze.at(i).skip_bits(j * 8).preload_uint(8);
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
