@@ -1,6 +1,6 @@
 #include "imports/stdlib.fc";
 
-() main() {
+() recv_internal() impure {
     
 }
 

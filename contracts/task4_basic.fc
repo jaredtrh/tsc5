@@ -2,8 +2,8 @@
 
 forall X -> (tuple) to_tuple (X x) asm "NOP";
 
-() main() {
-
+() recv_internal() impure {
+    
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
