@@ -49,8 +49,13 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                     int nj = j + dj;
                     if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
                         int x = maze.at(ni).at(nj);
-                        int nk = x == "?"u ? k + 1 : k;
-                        int nl = x == "X"u ? l + 1 : l;
+                        int nk = k;
+                        int nl = l;
+                        if (x == "?"u) {
+                            nk += 1;
+                        } elseif (x == "X"u) {
+                            nl += 1;
+                        }
                         int index = ni * m + nj;
                         (slice s, int success) = info.udict_get?(10, index);
                         int flag = 0;
