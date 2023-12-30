@@ -76,15 +76,29 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
         
         (slice key, slice val, int flag) = users.dict_get_min?(256);
         while (flag) {
+            slice addr = begin_cell()
+                .store_uint(2, 2)
+                .store_uint(0, 9)
+                .store_slice(key)
+                .end_cell()
+                .begin_parse();
+
             send_raw_message(
                 begin_cell()
                     .store_uint(0x10, 6)
                     .store_slice(sender_address)
-                    .store_coins(val~load_uint(32) * amount / total_share)
+                    .store_coins(20000000)
                     .store_uint(0, 107)
+                    .store_uint(0x0f8a7ea5, 32)
+                    .store_uint(0, 64)
+                    .store_coins(val~load_uint(32) * amount / total_share)
+                    .store_slice(addr)
+                    .store_slice(addr)
+                    .store_coins(1)
                     .end_cell(),
                 1
             );
+
             (key, val, flag) = users.dict_get_next?(256, key);
         }
     }
