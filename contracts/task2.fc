@@ -74,6 +74,7 @@
         }
     } else {
         throw_if(122, users.dict_empty?());
+        return();
 
         int amount = in_msg_body~load_coins();
         
