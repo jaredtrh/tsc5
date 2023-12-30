@@ -1,7 +1,7 @@
 #include "imports/stdlib.fc";
 
 () recv_internal() impure {
-    
+
 }
 
 () recv_external(slice in_msg_body) impure {
@@ -32,9 +32,9 @@
         set_data(
             begin_cell()
                 .store_uint(public_key, 256)
-                .store_uint(execution_time, 32)
+                .store_uint(new_execution_time, 32)
                 .store_slice(receiver)
-                .store_uint(seqno, 32)
+                .store_uint(new_seqno, 32)
                 .end_cell()
         );
     } else {
