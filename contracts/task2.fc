@@ -2,7 +2,7 @@
 
 (slice, cell, int) load_data() inline {
     slice ds = get_data().begin_parse();
-    return (ds~load_msg_addr(), ds~load_dict(), ds.slice_empty?() ? 0 : ds.preload_uint(32));
+    return (ds~load_msg_addr(), ds~load_dict(), ds.slice_empty?() ? 0 : ds.preload_uint(256));
 }
 
 () store_data(slice admin_address, cell users, int total_share) impure inline {
@@ -10,7 +10,7 @@
         begin_cell()
             .store_slice(admin_address)
             .store_dict(users)
-            .store_uint(total_share, 32)
+            .store_uint(total_share, 256)
             .end_cell()
     );
 }
@@ -125,6 +125,6 @@ cell get_users() method_id {
 
 int get_user_share(slice user_address) method_id {
     (_, int address) = user_address.parse_std_addr();
-    (slice s, _) = load_users().udict_get?(256, address);
-    return s.preload_uint(32);
+    (slice us, _) = load_users().udict_get?(256, address);
+    return us.preload_uint(32);
 }
