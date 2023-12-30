@@ -22,7 +22,7 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
 }
 
 slice load_sender_addr(cell in_msg) inline {
-    slice cs = in_msg.begin_parse().skip_bits(4);
+    slice cs = in_msg.begin_parse().skip_bits(6);
     return cs~load_msg_addr();
 }
 
