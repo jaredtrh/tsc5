@@ -25,7 +25,7 @@
     slice sender_address = cs~load_msg_addr();
     
     int op = in_msg_body~load_uint(32);
-    in_msg_body~skip_bits(64);
+    int query_id = in_msg_body~load_uint(64);
     if (op == 0x368ddef3) {
         throw_unless(120, equal_slices(sender_address, admin_address));
 
@@ -50,7 +50,6 @@
         throw_unless(121, users~udict_delete?(256, address));
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
-        return();
 
         (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
@@ -75,7 +74,6 @@
         }
     } else {
         throw_if(122, users.dict_empty?());
-        return();
 
         int amount = in_msg_body~load_coins();
         
@@ -93,7 +91,7 @@
                     .store_uint(0x18, 6)
                     .store_slice(sender_address)
                     .store_coins(20000000)
-                    .store_uint(0, 107)
+                    .store_uint(query_id, 107)
                     .store_ref(
                         begin_cell()
                             .store_uint(0x0f8a7ea5, 32)
