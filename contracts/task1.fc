@@ -6,10 +6,6 @@
 
 () recv_external(slice in_msg_body) impure {
     slice ds = get_data().begin_parse();
-    int public_key = ds~load_uint(256);
-    int execution_time = ds~load_uint(32);
-    slice receiver = ds~load_msg_addr();
-    int seqno = ds.preload_uint(32);
     
     int op = in_msg_body~load_uint(32);
     if (op == 0x9df10277) {
@@ -19,6 +15,11 @@
         slice rs = ref.begin_parse();
         int locked_for = rs~load_uint(32);
         int new_seqno = rs.preload_uint(32);
+        
+        int public_key = ds~load_uint(256);
+        int execution_time = ds~load_uint(32);
+        slice receiver = ds~load_msg_addr();
+        int seqno = ds.preload_uint(32);
         
         throw_if(119, new_seqno != seqno + 1);
         throw_unless(120, check_signature(cell_hash(ref), signature, public_key));
@@ -38,8 +39,13 @@
                 .end_cell()
         );
     } else {
+        ds~skip_bits(256);
+        int execution_time = ds~load_uint(32);
+        
         throw_if(124, now() <= execution_time);
         accept_message();
+        
+        slice receiver = ds~load_msg_addr();
 
         send_raw_message(
             begin_cell()
