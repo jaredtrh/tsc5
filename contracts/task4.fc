@@ -78,9 +78,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         list = new_list;
         length += 1;
     } until (list.null?());
-    ~dump(short);
-    ~dump(cnt_sup);
-    ~dump(cnt_obs);
+    
     cell ans_dict = new_dict();
 
     int i = ei;
