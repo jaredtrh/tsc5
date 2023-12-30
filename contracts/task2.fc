@@ -21,18 +21,14 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
     );
 }
 
-slice load_sender_addr(cell in_msg) inline {
-    slice cs = in_msg.begin_parse().skip_bits(4);
-    return cs~load_msg_addr();
-}
-
 () recv_internal(int my_balance, int _, cell in_msg, slice in_msg_body) impure {
     if (in_msg_body.slice_empty?()) {
         return ();
     }
 
     (slice admin_address, cell users, int total_share) = load_data();
-    slice sender_address = load_sender_addr(in_msg);
+    slice cs = in_msg.begin_parse().skip_bits(4);
+    slice sender_address = cs~load_msg_addr();
     
     int op = in_msg_body~load_uint(32);
     in_msg_body~skip_bits(64);
@@ -58,9 +54,6 @@ slice load_sender_addr(cell in_msg) inline {
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
 
-        slice cs = in_msg.begin_parse();
-        cs~skip_bits(4);
-        cs~load_msg_addr();
         cs~load_msg_addr();
         int amount = cs~load_coins();
 
@@ -73,7 +66,7 @@ slice load_sender_addr(cell in_msg) inline {
                     .store_uint(0, 9)
                     .store_slice(key)
                     .store_coins(val~load_uint(32) * amount / total_share)
-                    .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+                    .store_uint(0, 107)
                     .end_cell(),
                 1
             );

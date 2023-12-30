@@ -2,7 +2,7 @@
 
 forall X -> (tuple) to_tuple (X x) asm "NOP";
 
-() recv_internal() impure {
+() main() {
 
 }
 
