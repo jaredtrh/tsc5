@@ -1,11 +1,5 @@
 #include "imports/stdlib.fc";
 
-int slices_equal?(slice a, slice b) asm "SDEQ";
-(slice, int) dict_get?(cell dict, int key_len, slice index) asm(index dict key_len) "DICTGET" "NULLSWAPIFNOT";
-(cell, int) dict_delete?(cell dict, int key_len, slice index) asm(index dict key_len) "DICTDEL";
-(slice, slice, int) dict_get_min?(cell dict, int key_len) asm (-> 1 0 2) "DICTMIN" "NULLSWAPIFNOT2";
-(slice, slice, int) dict_get_next?(cell dict, int key_len, slice pivot) asm(pivot dict key_len -> 1 0 2) "DICTGETNEXT" "NULLSWAPIFNOT2";
-
 (slice, cell, int) load_data() inline {
     slice ds = get_data().begin_parse();
     return (ds~load_msg_addr(), ds~load_dict(), ~ ds.slice_empty?() ? ds.preload_uint(32) : 0);
@@ -33,32 +27,33 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
     int op = in_msg_body~load_uint(32);
     in_msg_body~skip_bits(64);
     if (op == 0x368ddef3) {
-        throw_unless(120, slices_equal?(sender_address, admin_address));
+        throw_unless(120, equal_slices(sender_address, admin_address));
 
-        slice address = in_msg_body~load_msg_addr();
+        int address = in_msg_body.parse_std_addr();
         int share = in_msg_body.preload_uint(32);
         
-        (slice us, int success) = users.dict_get?(256, address);
+        (slice us, int success) = users.udict_get?(256, address);
 
+        users~udict_set_builder(256, address, begin_cell().store_uint(share, 32));
         store_data(
             admin_address,
-            users.dict_set_builder(256, address.skip_bits(11), begin_cell().store_uint(share, 32)),
-            (success ? total_share - us~load_uint(32) : total_share) + share
+            users,
+            (success ? total_share - us.preload_uint(32) : total_share) + share
         );
     } elseif (op == 0x278205c8) {
-        throw_unless(120, slices_equal?(sender_address, admin_address));
+        throw_unless(120, equal_slices(sender_address, admin_address));
 
-        slice address = in_msg_body~load_msg_addr();
+        int address = in_msg_body.parse_std_addr();
 
-        throw_unless(121, users~dict_delete?(256, address.skip_bits(11)));
+        throw_unless(121, users~udict_delete?(256, address));
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
 
-        (slice key, slice val, int flag) = users.dict_get_min?(256);
+        (slice key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             send_raw_message(
                 begin_cell()
-                    .store_uint(0x10, 6)
+                    .store_uint(0x18, 6)
                     .store_uint(2, 2)
                     .store_uint(0, 9)
                     .store_slice(key)
@@ -67,14 +62,15 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
                     .end_cell(),
                 1
             );
-            (key, val, flag) = users.dict_get_next?(256, key);
+            
+            (key, val, flag) = users.udict_get_next?(256, key);
         }
     } else {
         throw_if(122, users.dict_empty?());
 
         int amount = in_msg_body~load_coins();
         
-        (slice key, slice val, int flag) = users.dict_get_min?(256);
+        (slice key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             slice addr = begin_cell()
                 .store_uint(2, 2)
@@ -101,7 +97,7 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
                 1
             );
 
-            (key, val, flag) = users.dict_get_next?(256, key);
+            (key, val, flag) = users.udict_get_next?(256, key);
         }
     }
 }
