@@ -50,7 +50,6 @@
         throw_unless(121, users~udict_delete?(256, address));
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
-        return ();
 
         (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
@@ -114,14 +113,18 @@
     }
 }
 
-cell get_users() method_id {
+cell load_users() inline {
     slice ds = get_data().begin_parse();
     ds~load_msg_addr();
     return ds.preload_dict();
 }
 
+cell get_users() method_id {
+    return load_users();
+}
+
 int get_user_share(slice user_address) method_id {
     (_, int address) = user_address.parse_std_addr();
-    (slice s, _) = get_users().udict_get?(256, address);
+    (slice s, _) = load_users().udict_get?(256, address);
     return s.preload_uint(32);
 }
