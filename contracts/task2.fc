@@ -2,7 +2,7 @@
 
 (slice, cell, int) load_data() inline {
     slice ds = get_data().begin_parse();
-    return (ds~load_msg_addr(), ds~load_dict(), ~ ds.slice_empty?() ? ds.preload_uint(32) : 0);
+    return (ds~load_msg_addr(), ds~load_dict(), ds.slice_empty?() ? 0 : ds.preload_uint(32));
 }
 
 () store_data(slice admin_address, cell users, int total_share) impure inline {
@@ -50,6 +50,7 @@
         throw_unless(121, users~udict_delete?(256, address));
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
+        return();
 
         (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
@@ -74,6 +75,7 @@
         }
     } else {
         throw_if(122, users.dict_empty?());
+        return();
 
         int amount = in_msg_body~load_coins();
         
