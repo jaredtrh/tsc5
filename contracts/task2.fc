@@ -79,7 +79,7 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
             send_raw_message(
                 begin_cell()
                     .store_uint(0x10, 6)
-                    .store_uint(sender_address)
+                    .store_slice(sender_address)
                     .store_coins(val~load_uint(32) * amount / total_share)
                     .store_uint(0, 107)
                     .end_cell(),
