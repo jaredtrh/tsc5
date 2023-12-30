@@ -94,7 +94,9 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
                     .store_coins(val~load_uint(32) * amount / total_share)
                     .store_slice(addr)
                     .store_slice(addr)
+                    .store_uint(0, 1)
                     .store_coins(1)
+                    .store_uint(0, 1)
                     .end_cell(),
                 1
             );
