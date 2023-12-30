@@ -29,7 +29,7 @@
     if (op == 0x368ddef3) {
         throw_unless(120, equal_slices(sender_address, admin_address));
 
-        slice s = s~load_msg_addr();
+        slice s = in_msg_body~load_msg_addr();
         (_, int address) = s.parse_std_addr();
         int share = in_msg_body.preload_uint(32);
         
@@ -44,7 +44,7 @@
     } elseif (op == 0x278205c8) {
         throw_unless(120, equal_slices(sender_address, admin_address));
 
-        slice s = s~load_msg_addr();
+        slice s = in_msg_body~load_msg_addr();
         (_, int address) = s.parse_std_addr();
 
         throw_unless(121, users~udict_delete?(256, address));
