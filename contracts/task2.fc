@@ -91,7 +91,7 @@
                     .store_uint(0x18, 6)
                     .store_slice(sender_address)
                     .store_coins(20000000)
-                    .store_uint(0, 107)
+                    .store_uint(1, 107)
                     .store_ref(
                         begin_cell()
                             .store_uint(0x0f8a7ea5, 32)
