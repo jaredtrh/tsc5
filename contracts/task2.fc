@@ -82,6 +82,7 @@ slice load_sender_addr(cell in_msg) inline {
         slice cs = in_msg.begin_parse();
         cs~skip_bits(4);
         cs~load_msg_addr();
+        cs~load_msg_addr();
         int amount = cs~load_coins();
 
         (slice key, slice val, int flag) = users.dict_get_min?(256);
