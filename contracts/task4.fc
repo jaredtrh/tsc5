@@ -34,7 +34,6 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     cnts~udict_set_builder(10, si * m + sj, begin_cell().store_uint(0, 10).store_uint(0, 10));
 
     tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
-    int length = 0;
     do {
         tuple new_list = null();
         while (~ list.null?()) {
@@ -73,15 +72,13 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
             }
         }
         list = new_list;
-        length += 1;
     } until (list.null?());
-    ~dump(length);
 
     cell ans_dict = new_dict();
 
     int i = ei;
     int j = ej;
-    int short = 0;
+    int length = 0;
     do {
         ans_dict~udict_set_builder(10, i * m + j, begin_cell().store_uint(1, 1));
 
@@ -89,7 +86,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         i = s~load_uint(5);
         j = s.preload_uint(5);
 
-        short += 1;
+        length += 1;
     } until ((i == si) & (j == sj));
     ans_dict~udict_delete?(10, ei * m + ej);
 
