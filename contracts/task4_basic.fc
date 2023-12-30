@@ -89,7 +89,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         (slice s, _) = parent.udict_get?(12, (i * m + j) * (obs + 1) + k);
         i = s~load_uint(3);
         j = s~load_uint(3);
-        k = s~load_uint(6);
+        k = s.preload_uint(6);
     }
     ans_dict~udict_delete?(6, ei * m + ej);
 

@@ -8,7 +8,7 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
 
 (slice, cell, int) load_data() inline {
     slice ds = get_data().begin_parse();
-    return (ds~load_msg_addr(), ds~load_dict(), ds.slice_empty?() ? 0 : ds~load_uint(32));
+    return (ds~load_msg_addr(), ds~load_dict(), ~ ds.slice_empty?() ? ds.preload_uint(32) : 0);
 }
 
 () store_data(slice admin_address, cell users, int total_share) impure inline {
@@ -36,7 +36,7 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
         throw_unless(120, slices_equal?(sender_address, admin_address));
 
         slice address = in_msg_body~load_msg_addr();
-        int share = in_msg_body~load_uint(32);
+        int share = in_msg_body.preload_uint(32);
         
         (slice us, int success) = users.dict_get?(256, address);
 
@@ -89,7 +89,7 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
             send_raw_message(
                 begin_cell()
                     .store_uint(0x10, 6)
-                    .store_slice(sender_address)
+                    .store_slice(admin_address)
                     .store_coins(20000000)
                     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
                     .store_uint(0x0f8a7ea5, 32)
@@ -112,10 +112,10 @@ int slices_equal?(slice a, slice b) asm "SDEQ";
 cell get_users() method_id {
     slice ds = get_data().begin_parse();
     ds~load_msg_addr();
-    return ds~load_dict();
+    return ds.preload_dict();
 }
 
 int get_user_share(slice user_address) method_id {
     (slice s, _) = get_users().dict_get?(256, user_address.skip_bits(11));
-    return s~load_uint(32);
+    return s.preload_uint(32);
 }
