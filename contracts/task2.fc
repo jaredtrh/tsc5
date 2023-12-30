@@ -29,7 +29,8 @@
     if (op == 0x368ddef3) {
         throw_unless(120, equal_slices(sender_address, admin_address));
 
-        int address = in_msg_body.parse_std_addr();
+        slice s = s~load_msg_addr();
+        (_, int address) = s.parse_std_addr();
         int share = in_msg_body.preload_uint(32);
         
         (slice us, int success) = users.udict_get?(256, address);
@@ -43,7 +44,8 @@
     } elseif (op == 0x278205c8) {
         throw_unless(120, equal_slices(sender_address, admin_address));
 
-        int address = in_msg_body.parse_std_addr();
+        slice s = s~load_msg_addr();
+        (_, int address) = s.parse_std_addr();
 
         throw_unless(121, users~udict_delete?(256, address));
     } elseif (op == 0x068530b3) {
