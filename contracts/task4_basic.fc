@@ -1,14 +1,9 @@
 #include "imports/stdlib.fc";
 
-forall X -> (tuple, ()) set_at(tuple t, X value, int index) asm "SETINDEXVAR";
 forall X -> (tuple) to_tuple (X x) asm "NOP";
 
 () recv_internal() impure {
 
-}
-
-int get(tuple maze, int i, int j) inline {
-    return maze.at(i).at(j);
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
@@ -21,7 +16,7 @@ int get(tuple maze, int i, int j) inline {
     while (i < n) {
         int j = 0;
         while (j < m) {
-            int x = maze.get(i, j);
+            int x = maze.at(i).at(j);
             if (x == "S"u) {
                 si = i;
                 sj = j;
@@ -48,7 +43,7 @@ int get(tuple maze, int i, int j) inline {
         tuple new_list = null();
         while (~ list.null?()) {
             (int i, int j, int k) = untriple(list~list_next());
-            if (maze.get(i, j) == "E"u) {
+            if (maze.at(i).at(j) == "E"u) {
                 if (k < cnt) {
                     cnt = k;
                     short = length;
@@ -61,7 +56,7 @@ int get(tuple maze, int i, int j) inline {
                 int ni = i + di;
                 int nj = j + dj;
                 if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
-                    int x = maze.get(ni, nj);
+                    int x = maze.at(ni).at(nj);
                     if (x != "X"u) {
                         int nk = x == "?"u ? min(obs, k + 1) : k;
                         int index = (ni * m + nj) * (obs + 1) + nk;
@@ -105,7 +100,7 @@ int get(tuple maze, int i, int j) inline {
         int j = 0;
         while (j < m) {
             (_, int success) = ans_dict.udict_get?(6, i * m + j);
-            row~tpush(success ? "!"u : maze.get(i, j));
+            row~tpush(success ? "!"u : maze.at(i).at(j));
             j += 1;
         }
         ans~tpush(row);

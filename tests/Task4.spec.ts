@@ -35,4 +35,49 @@ describe('Task4', () => {
         // the check is done inside beforeEach
         // blockchain and task4 are ready to use
     });
+
+    it('should maze', async () => {
+        const maze = [
+            /*"S.......",
+            "........",
+            "........",
+            "........",
+            "........",
+            "........",
+            "...E....",
+            "........",
+            
+            "XXXXXXE.",
+            "XX.XXXX.",
+            "X.X.XXXX",
+            ".?XSXXX.",
+            "?.XXXXX.",
+            "XX..XXX.",
+            "XX..XX?X",
+            "XXX...XX",
+            */
+            "SX.?X",
+            ".XX.X",
+            "X.?..",
+            ".??..",
+            "X?...",
+            "..X.X",
+            "..?..",
+            "X...E",
+        ];
+        const [changes, obstacles, length, ans] = await task4.getSolve(maze);
+
+        console.log(changes);
+        console.log(obstacles);
+        console.log(length);
+        let s = "";
+        for (let i = 0; i < maze.length; ++i) {
+            let row = ans.readTuple();
+            for (let j = 0; j < maze[0].length; ++j) {
+                s += String.fromCharCode(row.readNumber());
+            }
+            s += "\n";
+        }
+        console.log(s);
+    });
 });

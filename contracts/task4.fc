@@ -1,5 +1,116 @@
 #include "imports/stdlib.fc";
 
-() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+forall X -> (tuple) to_tuple (X x) asm "NOP";
 
+() recv_internal() impure {
+
+}
+
+(int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
+    int si = 0;
+    int sj = 0;
+    int ei = 0;
+    int ej = 0;
+    int sup = 0;
+    int obs = 0;
+    int i = 0;
+    while (i < n) {
+        int j = 0;
+        while (j < m) {
+            int x = maze.at(i).at(j);
+            if (x == "S"u) {
+                si = i;
+                sj = j;
+            } elseif (x == "E"u) {
+                ei = i;
+                ej = j;
+            } elseif (x == "?"u) {
+                sup += 1;
+            } elseif (x == "X"u) {
+                obs += 1;
+            }
+            j += 1;
+        }
+        i += 1;
+    }
+    
+    tuple list = cons(tuple4(si, sj, 0, 0), null());
+    cell parent = new_dict();
+
+    int short = 0;
+    int cnt_sup = 0;
+    int cnt_obs = obs + 1;
+
+    tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
+    int length = 0;
+    do {
+        tuple new_list = null();
+        while (~ list.null?()) {
+            (int i, int j, int k, int l) = untuple4(list~list_next());
+            if (maze.at(i).at(j) == "E"u) {
+                if ((l < cnt_obs) | ((l == cnt_obs) & (k < cnt_sup))) {
+                    short = length;
+                    cnt_sup = k;
+                    cnt_obs = l;
+                }
+            }
+
+            int idx = 0;
+            while (idx < 8) {
+                (int di, int dj) = unpair(deltas.at(idx));
+                int ni = i + di;
+                int nj = j + dj;
+                if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
+                    int x = maze.at(ni).at(nj);
+                    int nk = x == "?"u ? min(sup, k + 1) : k;
+                    int nl = x == "X"u ? min(obs, l + 1) : l;
+                    int index = ((ni * m + nj) * (sup + 1) + nk) * (obs + 1) + nl;
+                    (_, int success) = parent.udict_get?(30, index);
+                    if (~ success) {
+                        new_list = cons(tuple4(ni, nj, nk, nl), new_list);
+                        parent~udict_set_builder(30, index,
+                            begin_cell().store_uint(i, 5).store_uint(j, 5).store_uint(k, 10).store_uint(l, 10));
+                    }
+                }
+                idx += 1;
+            }
+        }
+        list = new_list;
+        length += 1;
+    } until (list.null?());
+    ~dump(short);
+    ~dump(cnt_sup);
+    ~dump(cnt_obs);
+    cell ans_dict = new_dict();
+
+    int i = ei;
+    int j = ej;
+    int k = cnt_sup;
+    int l = cnt_obs;
+    do {
+        ans_dict~udict_set_builder(10, i * m + j, begin_cell().store_uint(1, 1));
+
+        (slice s, _) = parent.udict_get?(30, ((i * m + j) * (sup + 1) + k) * (obs + 1) + l);
+        i = s~load_uint(5);
+        j = s~load_uint(5);
+        k = s~load_uint(10);
+        l = s.preload_uint(10);
+    } until ((i == si) & (j == sj));
+    ans_dict~udict_delete?(10, ei * m + ej);
+
+    tuple ans = empty_tuple();
+    int i = 0;
+    while (i < n) {
+        tuple row = empty_tuple();
+        int j = 0;
+        while (j < m) {
+            (_, int success) = ans_dict.udict_get?(10, i * m + j);
+            row~tpush(success ? "!"u : maze.at(i).at(j));
+            j += 1;
+        }
+        ans~tpush(row);
+        i += 1;
+    }
+
+    return (cnt_obs, cnt_sup, short, ans);
 }
