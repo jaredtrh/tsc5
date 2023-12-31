@@ -87,18 +87,19 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
         } until ((current_version == expected_version) | ~ success);
 
         throw_unless(400, success);
-{-
+
+        set_code(new_code);
+
         do {
             (slice ms, _) = migrations.udict_get?(32, version_id);
             version_id = ms~load_uint(32);
             cell migration_code = ms.preload_maybe_ref();
             if (~ migration_code.cell_null?()) {
+                set_code(migration_code);
                 set_c3(bless(migration_code.begin_parse()));
                 storage = migrate_one(storage);
             }
         } until (version_id == expected_version);
-        
-        set_c3(bless(new_code.begin_parse()));-}
     }
 
     storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
