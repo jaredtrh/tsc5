@@ -47,7 +47,14 @@
         slice s = in_msg_body~load_msg_addr();
         (_, int address) = s.parse_std_addr();
 
-        throw_unless(121, users~udict_delete?(256, address));
+        (slice us, int success) = users~udict_delete_get?(256, address);
+        throw_unless(121, success);
+
+        store_data(
+            admin_address,
+            users,
+            total_share - us.preload_uint(32)
+        );
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
 
