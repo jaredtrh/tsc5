@@ -76,7 +76,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
     if (expected_version != version_id) {
         throw_if(200, (expected_version < version_id) | (new_code.cell_null?()));
-
+{-
         int current_version = version_id;
         int success = 0;
         do {
@@ -98,7 +98,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
             }
         } until (version_id == expected_version);
         
-        set_c3(bless(new_code.begin_parse()));
+        set_c3(bless(new_code.begin_parse()));-}
     }
 
     storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
