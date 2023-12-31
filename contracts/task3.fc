@@ -76,7 +76,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
     if (expected_version != version_id) {
         throw_if(200, (expected_version < version_id) | (new_code.cell_null?()));
-{-
+
         int current_version = version_id;
         int success = 0;
         do {
@@ -87,7 +87,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
         } until ((current_version == expected_version) | ~ success);
 
         throw_unless(400, success);
-
+{-
         do {
             (slice ms, _) = migrations.udict_get?(32, version_id);
             version_id = ms~load_uint(32);
