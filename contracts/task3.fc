@@ -23,7 +23,7 @@ cell get_storage() {
     return storage;
 }
 
-cell wrap_storage(int version_id, cell storage) {
+cell wrap_storage(int version_id, int test, cell storage) {
     ;; add additional data required for versioning in this cell
     return begin_cell()
         .store_uint(version_id, 32)
@@ -104,5 +104,5 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
     storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
 
-    set_data(wrap_storage(expected_version, storage));
+    set_data(wrap_storage(expected_version, 123, storage));
 }
