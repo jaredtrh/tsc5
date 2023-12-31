@@ -61,7 +61,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                         int nk = x == "?"u ? min(obs, k + 1) : k;
                         int index = (ni * m + nj) * (obs + 1) + nk;
                         (_, int success) = parent.udict_get?(12, index);
-                        if (~ success) {
+                        ifnot (success) {
                             new_list = cons(triple(ni, nj, nk), new_list);
                             parent~udict_set_builder(12, index, begin_cell().store_uint(i, 3).store_uint(j, 3).store_uint(k, 6));
                         }
