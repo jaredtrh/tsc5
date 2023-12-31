@@ -62,7 +62,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
     int expected_version = in_msg_body~load_uint(32);
     if (expected_version == 0) {
-        set_data(wrap_storage(1, get_data()));
+        set_data(wrap_storage(1, 123, get_data()));
         return ();
     }
 
