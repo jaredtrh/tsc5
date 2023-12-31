@@ -75,7 +75,7 @@ int version() method_id {
     cell storage = ds~load_ref();
 
     if (version_id != expected_version) {
-        throw_if(200, new_code.cell_null?());
+        throw_if(200, (expected_version < version_id) | (new_code.cell_null?()));
         set_c3(bless(new_code.begin_parse()));
 
         int success = -1;
