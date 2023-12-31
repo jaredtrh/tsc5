@@ -86,6 +86,7 @@ int version() method_id {
                 cell migration_code = ms~load_maybe_ref();
                 if (~ migration_code.cell_null?()) {
                     set_c3(bless(migration_code.begin_parse()));
+                    storage = migrate_one(storage);
                 }
             }
         } until ((version_id == expected_version) | ~ success);
