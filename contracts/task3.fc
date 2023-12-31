@@ -23,20 +23,11 @@ cell get_storage() {
     return storage;
 }
 
-cell wrap_storage(int version_id, cell storage, tuple migration_list) {
-    builder b = begin_cell()
+cell wrap_storage(int version_id, cell storage) {
+    return begin_cell()
         .store_uint(version_id, 32)
-        .store_ref(storage);
-    
-    tuple tmp = null();
-    while (~ migration_list.null?()) {
-        tmp = cons(migration_list~list_next(), tmp);
-    }
-    while (~ tmp.null?()) {
-        b = b.store_ref(tmp~list_next());
-    }
-
-    return b.end_cell();
+        .store_ref(storage)
+        .end_cell();
 }
 
 ;; Return the current version of the smart contract
@@ -70,7 +61,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
     int expected_version = in_msg_body~load_uint(32);
     if (expected_version == 0) {
-        set_data(wrap_storage(1, get_data(), null()));
+        set_data(wrap_storage(1, get_data()));
         return ();
     }
 
@@ -81,19 +72,9 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
     slice ds = get_data().begin_parse();
     int version_id = ds~load_uint(32);
     cell storage = ds~load_ref();
-    
-    tuple migration_list = null();
-    while (~ ds.slice_empty?()) {
-        cell migration_code = ds~load_ref();
-
-        set_c3(bless(migration_code.begin_parse()));
-        storage = migrate_one(storage);
-
-        migration_list = cons(migration_code, migration_list);
-    }
 
     if (expected_version != version_id) {
-        throw_if(200, (expected_version < version_id) | (new_code.cell_null?()));
+        throw_if(200, (expected_version < version_id) | new_code.cell_null?());
 
         int current_version = version_id;
         int success = 0;
@@ -114,15 +95,14 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
             version_id = ms~load_uint(32);
             cell migration_code = ms.preload_maybe_ref();
             if (~ migration_code.cell_null?()) {
+                set_code(migration_code);
                 set_c3(bless(migration_code.begin_parse()));
                 storage = migrate_one(storage);
-
-                migration_list = cons(migration_code, migration_list);
             }
         } until (version_id == expected_version);
     }
 
     storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
 
-    set_data(wrap_storage(expected_version, storage, migration_list));
+    set_data(wrap_storage(expected_version, storage));
 }
