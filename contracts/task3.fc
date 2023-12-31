@@ -65,7 +65,6 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
         set_data(wrap_storage(1, get_data()));
         return ();
     }
-    return();
 
     cell new_code = in_msg_body~load_maybe_ref();
     cell migrations = in_msg_body~load_dict();
