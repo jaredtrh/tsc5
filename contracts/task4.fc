@@ -33,7 +33,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     cell info = new_dict();
     info~udict_set_builder(10, si * 31 + sj, begin_cell().store_uint(0, 30));
 
-    tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
+    tuple deltas = to_tuple([[1, -1], [1, 0], [1, 1], [0, -1], [0, 1], [-1, -1], [-1, 0], [-1, 1]]);
     do {
         tuple new_list = null();
         do {
