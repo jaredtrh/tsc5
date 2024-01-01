@@ -54,7 +54,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
 ;; Custom version-specific code ends >>>>>
 
-() recv_internal(int msg_value, int balance, cell in_msg_full, slice in_msg_body) impure {
+() recv_internal(int balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     if (in_msg_body.slice_bits() < 32) {
         return ();
     }
@@ -71,7 +71,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
     slice ds = get_data().begin_parse();
     int version_id = ds~load_uint(32);
-    cell storage = ds~load_ref();
+    cell storage = ds.preload_ref();
 
     if (expected_version != version_id) {
         throw_if(200, (expected_version < version_id) | new_code.cell_null?());
@@ -101,7 +101,7 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
         set_c3(new_code.begin_parse().bless());
     }
 
-    ;;storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
+    storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
 
-    ;;set_data(wrap_storage(expected_version, storage));
+    set_data(wrap_storage(expected_version, storage));
 }
