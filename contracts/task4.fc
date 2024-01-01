@@ -60,7 +60,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                 if (nkey < oldkey) {
                     unvis~udict_delete?(40, oldkey);
                     unvis~udict_set_builder(40, nkey, begin_cell());
-                    info~udict_replace_builder?(10, index, begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5));
+                    info~udict_set_builder(10, index, begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5));
                 }
             }
             idx += 1;
