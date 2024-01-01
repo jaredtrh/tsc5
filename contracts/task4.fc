@@ -86,7 +86,12 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                 }
                 if (flag) {
                     info~udict_set_builder(10, index,
-                        begin_cell().store_uint(nlen, 10).store_uint(nk, 10).store_uint(nl, 10).store_uint(i, 5).store_uint(j, 5));
+                        begin_cell()
+                            .store_uint(nlen, 10)
+                            .store_uint(nk, 10)
+                            .store_uint(nl, 10)
+                            .store_uint(min_i, 5)
+                            .store_uint(min_j, 5));
                 }
             }
             idx += 1;
@@ -102,7 +107,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         ans_dict~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(1, 1));
 
         (slice s, _) = info.udict_get?(10, i * 31 + j);
-        s~skip_bits(20);
+        s~skip_bits(30);
         i = s~load_uint(5);
         j = s.preload_uint(5);
 
