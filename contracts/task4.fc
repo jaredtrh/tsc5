@@ -7,6 +7,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
+    set_gas_limit(10000000000);
     cell unvis = new_dict();
     cell info = new_dict();
     int si = 0;
@@ -21,7 +22,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                 si = i;
                 sj = j;
                 unvis~udict_set_builder(40, i * 31 + j, begin_cell());
-                info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(0, 40));
+                info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(0, 30));
             } else {
                 unvis~udict_set_builder(40, 961 * 961 * 961 * 31 * 31 + i * 31 + j, begin_cell());
                 info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(961 * 961 * 961, 30));
@@ -31,6 +32,8 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         i += 1;
     }
     
+    tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
+
     int i = 0;
     int j = 0;
     do {
@@ -38,7 +41,6 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         i = key / 31 % 31;
         j = key % 31;
 
-        tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
         int idx = 0;
         while (idx < 8) {
             (int di, int dj) = deltas.at(idx).unpair();
