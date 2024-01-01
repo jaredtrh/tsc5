@@ -42,7 +42,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         while (i < n) {
             int j = 0;
             while (j < m) {
-                (slice s, _) = info.dict_get?(10, i * 31 + j);
+                (slice s, _) = info.udict_get?(10, i * 31 + j);
                 int len = s~load_uint(10);
                 int k = s~load_uint(10);
                 int l = s.preload_uint(10);
@@ -104,7 +104,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     int j = ej;
     int length = 0;
     do {
-        ans_dict~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(1, 1));
+        ans_dict~udict_set_builder(10, i * 31 + j, begin_cell());
 
         (slice s, _) = info.udict_get?(10, i * 31 + j);
         s~skip_bits(30);
