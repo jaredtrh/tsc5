@@ -31,14 +31,14 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     
     tuple list = cons(tuple4(si, sj, 0, 0), null());
     cell info = new_dict();
-    info~udict_set_builder(10, si * m + sj, begin_cell().store_uint(0, 30));
+    info~udict_set_builder(10, si * 31 + sj, begin_cell().store_uint(0, 30));
 
     tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
     do {
         tuple new_list = null();
         do {
             (int i, int j, int k, int l) = untuple4(list~list_next());
-            (slice s, _) = info.udict_get?(10, i * m + j);
+            (slice s, _) = info.udict_get?(10, i * 31 + j);
             int sup = s~load_uint(10);
             int obs = s.preload_uint(10);
             if ((k == sup) & (l == obs)) {
@@ -56,7 +56,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                         } elseif (x == "X"u) {
                             nl += 1;
                         }
-                        int index = ni * m + nj;
+                        int index = ni * 31 + nj;
                         (slice s, int success) = info.udict_get?(10, index);
                         int flag = 0;
                         if (success) {
@@ -85,16 +85,16 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     int j = ej;
     int length = 0;
     do {
-        ans_dict~udict_set_builder(10, i * m + j, begin_cell().store_uint(1, 1));
+        ans_dict~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(1, 1));
 
-        (slice s, _) = info.udict_get?(10, i * m + j);
+        (slice s, _) = info.udict_get?(10, i * 31 + j);
         s~skip_bits(20);
         i = s~load_uint(5);
         j = s.preload_uint(5);
 
         length += 1;
     } until (maze.at(i).at(j) == "S"u);
-    ans_dict~udict_delete?(10, ei * m + ej);
+    ans_dict~udict_delete?(10, ei * 31 + ej);
 
     tuple ans = empty_tuple();
     int i = 0;
@@ -103,7 +103,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         tuple row = empty_tuple();
         int j = 0;
         while (j < m) {
-            (_, int success) = ans_dict.udict_get?(10, i * m + j);
+            (_, int success) = ans_dict.udict_get?(10, i * 31 + j);
             row~tpush(success ? "!"u : maze_row.at(j));
             j += 1;
         }
@@ -111,7 +111,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         i += 1;
     }
 
-    (slice s, _) = info.udict_get?(10, ei * m + ej);
+    (slice s, _) = info.udict_get?(10, ei * 31 + ej);
     int sup = s~load_uint(10);
     int obs = s.preload_uint(10);
     return (obs, sup, length, ans);

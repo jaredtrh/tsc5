@@ -15,12 +15,7 @@
 ;; but the final implementation must adhere to the same structure
 
 cell get_storage() {
-    slice cs = get_data().begin_parse();
-    cs~skip_bits(32);
-    ;; Logic to extract the storage on which the version-specific process_message and get-methods operate
-    cell storage = cs~load_ref();
-
-    return storage;
+    return get_data().begin_parse().skip_bits(32).preload_ref();
 }
 
 cell wrap_storage(int version_id, cell storage) {
@@ -73,8 +68,10 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
     int version_id = ds~load_uint(32);
     cell storage = ds.preload_ref();
 
-    if (expected_version != version_id) {
-        throw_if(200, (expected_version < version_id) | new_code.cell_null?());
+    throw_if(200, expected_version < version_id);
+
+    if (expected_version > version_id) {
+        throw_if(200, new_code.cell_null?());
 
         int current_version = version_id;
         int success = 0;
