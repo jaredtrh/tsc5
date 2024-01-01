@@ -23,7 +23,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                 si = i;
                 sj = j;
                 unvis~udict_set_builder(40, i * 31 + j, begin_cell());
-                info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(0, 30));
+                info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(0, 40));
             } else {
                 unvis~udict_set_builder(40, 961 * 961 * 961 * 31 * 31 + i * 31 + j, begin_cell());
                 info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(961 * 961 * 961, 30));
@@ -56,10 +56,9 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                     nkey += 961 * 961 * 31 * 31;
                 }
                 (slice s, _) = info.udict_get?(10, index);
-                if (s.slice_bits() == 30) {
-                    int oldkey = s.preload_uint(30) * 961 + index;
-                    if (nkey < oldkey) {
-                        unvis~udict_delete?(40, oldkey);
+                int oldkey = s.preload_uint(30) * 961 + index;
+                if (nkey < oldkey) {
+                    if (unvis~udict_delete?(40, oldkey)) {
                         unvis~udict_set_builder(40, nkey, begin_cell());
                         info~udict_set_builder(10, index, begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5));
                     }
