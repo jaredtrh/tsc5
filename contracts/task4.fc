@@ -7,7 +7,6 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
-    set_gas_limit(10000000000);
     int si = 0;
     int sj = 0;
     int ei = 0;
