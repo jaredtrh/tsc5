@@ -131,6 +131,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     }
 
     (slice s, _) = info.udict_get?(10, ei * 31 + ej);
+    int length = s~load_uint(10);
     int sup = s~load_uint(10);
     int obs = s.preload_uint(10);
     return (obs, sup, length, ans);
