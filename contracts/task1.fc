@@ -22,7 +22,7 @@
         int seqno = ds.preload_uint(32);
         
         throw_if(119, new_seqno != seqno + 1);
-        throw_unless(120, check_signature(cell_hash(ref), signature, public_key));
+        throw_unless(120, check_signature(ref.cell_hash(), signature, public_key));
         throw_if(121, locked_for <= 0);
         int time = now();
         throw_if(122, execution_time < time);

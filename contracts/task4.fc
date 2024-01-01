@@ -7,11 +7,12 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
+    set_gas_limit(10000000000);
+
+    cell unvis = new_dict();
     cell info = new_dict();
     int si = 0;
     int sj = 0;
-    int ei = 0;
-    int ej = 0;
     int i = 0;
     while (i < n) {
         tuple row = maze.at(i);
@@ -21,98 +22,54 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
             if (x == "S"u) {
                 si = i;
                 sj = j;
+                unvis~udict_set_builder(40, i * 31 + j, begin_cell());
                 info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(0, 30));
-            } elseif (x == "E"u) {
-                ei = i;
-                ej = j;
-                info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(0, 20).store_uint(31 * 31, 10));
             } else {
-                info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(0, 20).store_uint(31 * 31, 10));
+                unvis~udict_set_builder(40, 961 * 961 * 961 * 31 * 31 + i * 31 + j, begin_cell());
+                info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(961 * 961 * 961, 30));
             }
             j += 1;
         }
         i += 1;
     }
-
-    tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
-
-    cell vis = new_dict();
     
-    int min_i = 0;
-    int min_j = 0;
+    int i = 0;
+    int j = 0;
     do {
-        int min_len = 0;
-        int min_k = 0;
-        int min_l = 31 * 31;
-        int i = 0;
-        while (i < n) {
-            int j = 0;
-            while (j < m) {
-                (_, int success) = vis.udict_get?(10, i * 31 + j);
-                ifnot (success) {
-                    (slice s, _) = info.udict_get?(10, i * 31 + j);
-                    int len = s~load_uint(10);
-                    int k = s~load_uint(10);
-                    int l = s.preload_uint(10);
-                    if ((l < min_l) | ((l == min_l) & ((k < min_k) | ((k == min_k) & (len < min_len))))) {
-                        min_i = i;
-                        min_j = j;
-                        min_len = len;
-                        min_k = k;
-                        min_l = l;
-                    }
-                }
-                j += 1;
-            }
-            i += 1;
-        }
-        vis~udict_set_builder(10, min_i * 31 + min_j, begin_cell());
-        
+        (int key, _, _) = unvis~udict::delete_get_min(40);
+        i = key / 31 % 31;
+        j = key % 31;
+
+        tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
         int idx = 0;
         while (idx < 8) {
             (int di, int dj) = deltas.at(idx).unpair();
-            int ni = min_i + di;
-            int nj = min_j + dj;
+            int ni = i + di;
+            int nj = j + dj;
             if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
                 int x = maze.at(ni).at(nj);
-                int nlen = min_len + 1;
-                int nk = min_k;
-                int nl = min_l;
+                int nkey = key / 961 * 961 + 31 * 31 + ni * 31 + nj;
                 if (x == "?"u) {
-                    nk += 1;
+                    nkey += 961 * 31 * 31;
                 } elseif (x == "X"u) {
-                    nl += 1;
+                    nkey += 961 * 961 * 31 * 31;
                 }
                 int index = ni * 31 + nj;
-                (slice s, int success) = info.udict_get?(10, index);
-                int flag = 0;
-                if (success) {
-                    int len = s~load_uint(10);
-                    int sup = s~load_uint(10);
-                    int obs = s.preload_uint(10);
-                    flag = (nl < obs) | ((nl == obs) & ((nk < sup) | ((nk == sup) & (nlen < len))));
-                } else {
-                    flag = -1;
-                }
-                if (flag) {
-                    info~udict_set_builder(10, index,
-                        begin_cell()
-                            .store_uint(nlen, 10)
-                            .store_uint(nk, 10)
-                            .store_uint(nl, 10)
-                            .store_uint(min_i, 5)
-                            .store_uint(min_j, 5));
+                (slice s, _) = info.udict_get?(10, index);
+                int oldkey = s.preload_uint(30) * 31 * 31 + index;
+                if (nkey < oldkey) {
+                    unvis~udict_delete?(40, oldkey);
+                    unvis~udict_set_builder(40, nkey, begin_cell());
+                    info~udict_replace_builder?(10, index, begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5));
                 }
             }
             idx += 1;
         }
-    } until (maze.at(min_i).at(min_j) == "E"u);
+    } until (maze.at(i).at(j) == "E"u);
 
     cell ans_dict = new_dict();
 
-    int i = ei;
-    int j = ej;
-    int length = 0;
+    int e = i * 31 + j;
     do {
         ans_dict~udict_set_builder(10, i * 31 + j, begin_cell());
 
@@ -120,10 +77,8 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         s~skip_bits(30);
         i = s~load_uint(5);
         j = s.preload_uint(5);
-
-        length += 1;
     } until (maze.at(i).at(j) == "S"u);
-    ans_dict~udict_delete?(10, ei * 31 + ej);
+    ans_dict~udict_delete?(10, e);
 
     tuple ans = empty_tuple();
     int i = 0;
@@ -140,9 +95,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         i += 1;
     }
 
-    (slice s, _) = info.udict_get?(10, ei * 31 + ej);
-    int length = s~load_uint(10);
-    int sup = s~load_uint(10);
-    int obs = s.preload_uint(10);
-    return (obs, sup, length, ans);
+    (slice s, _) = info.udict_get?(10, e);
+    int key = s.preload_uint(30);
+    return (key / 961 / 961, key / 961 % 961, key % 961, ans);
 }
