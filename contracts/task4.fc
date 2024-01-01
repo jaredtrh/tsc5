@@ -48,19 +48,21 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
             int nj = j + dj;
             if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
                 int x = maze.at(ni).at(nj);
-                int nkey = key / 961 * 961 + 31 * 31 + ni * 31 + nj;
+                int index = ni * 31 + nj;
+                int nkey = key / 961 * 961 + 961 + index;
                 if (x == "?"u) {
                     nkey += 961 * 31 * 31;
                 } elseif (x == "X"u) {
                     nkey += 961 * 961 * 31 * 31;
                 }
-                int index = ni * 31 + nj;
                 (slice s, _) = info.udict_get?(10, index);
-                int oldkey = s.preload_uint(30) * 31 * 31 + index;
-                if (nkey < oldkey) {
-                    unvis~udict_delete?(40, oldkey);
-                    unvis~udict_set_builder(40, nkey, begin_cell());
-                    info~udict_set_builder(10, index, begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5));
+                if (s.slice_bits() == 30) {
+                    int oldkey = s.preload_uint(30) * 961 + index;
+                    if (nkey < oldkey) {
+                        unvis~udict_delete?(40, oldkey);
+                        unvis~udict_set_builder(40, nkey, begin_cell());
+                        info~udict_set_builder(10, index, begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5));
+                    }
                 }
             }
             idx += 1;
