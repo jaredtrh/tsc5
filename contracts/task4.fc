@@ -29,7 +29,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         i += 1;
     }
     
-    tuple list = cons(pair(si, sj), null());
+    tuple list = cons(tuple4(si, sj, 0, 0), null());
     cell info = new_dict();
     info~udict_set_builder(10, si * 31 + sj, begin_cell().store_uint(0, 30));
 
@@ -38,12 +38,12 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         tuple new_list = null();
         cell vis = new_dict();
         do {
-            (int i, int j) = list~list_next().unpair();
-            if (vis~udict_add_builder?(10, i * 31 + j, begin_cell())) {
-                (slice s, _) = info.udict_get?(10, i * 31 + j);
-                int k = s~load_uint(10);
-                int l = s.preload_uint(10);
-                
+            (int i, int j, int k, int l) = list~list_next().untuple4();
+            (slice s, _) = info.udict_get?(10, i * 31 + j);
+            int sup = s~load_uint(10);
+            int obs = s.preload_uint(10);
+
+            if ((k == sup) & (l == obs)) {
                 int idx = 0;
                 while (idx < 8) {
                     (int di, int dj) = deltas.at(idx).unpair();
@@ -69,7 +69,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                             flag = -1;
                         }
                         if (flag) {
-                            new_list = cons(pair(ni, nj), new_list);
+                            new_list = cons(tuple4(ni, nj, nk, nl), new_list);
                             info~udict_set_builder(10, index,
                                 begin_cell().store_uint(nk, 10).store_uint(nl, 10).store_uint(i, 5).store_uint(j, 5));
                         }
