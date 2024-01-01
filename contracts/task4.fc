@@ -7,6 +7,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
+    cell info = new_dict();
     int si = 0;
     int sj = 0;
     int ei = 0;
@@ -16,6 +17,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         tuple row = maze.at(i);
         int j = 0;
         while (j < m) {
+            info~udict_set_builder(10, i * 31 + j, begin_cell().store_uint(31 * 31, 30));
             int x = row.at(j);
             if (x == "S"u) {
                 si = i;
@@ -28,57 +30,65 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
         }
         i += 1;
     }
-    
-    tuple list = cons(tuple4(si, sj, 0, 0), null());
-    cell info = new_dict();
-    info~udict_set_builder(10, si * 31 + sj, begin_cell().store_uint(0, 30));
 
     tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
     do {
-        tuple new_list = null();
-        cell vis = new_dict();
-        do {
-            (int i, int j, int k, int l) = list~list_next().untuple4();
-            (slice s, _) = info.udict_get?(10, i * 31 + j);
-            int sup = s~load_uint(10);
-            int obs = s.preload_uint(10);
-
-            if ((k == sup) & (l == obs)) {
-                int idx = 0;
-                while (idx < 8) {
-                    (int di, int dj) = deltas.at(idx).unpair();
-                    int ni = i + di;
-                    int nj = j + dj;
-                    if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
-                        int x = maze.at(ni).at(nj);
-                        int nk = k;
-                        int nl = l;
-                        if (x == "?"u) {
-                            nk += 1;
-                        } elseif (x == "X"u) {
-                            nl += 1;
-                        }
-                        int index = ni * 31 + nj;
-                        (slice s, int success) = info.udict_get?(10, index);
-                        int flag = 0;
-                        if (success) {
-                            int sup = s~load_uint(10);
-                            int obs = s.preload_uint(10);
-                            flag = (nl < obs) | ((nl == obs) & (nk < sup));
-                        } else {
-                            flag = -1;
-                        }
-                        if (flag) {
-                            new_list = cons(tuple4(ni, nj, nk, nl), new_list);
-                            info~udict_set_builder(10, index,
-                                begin_cell().store_uint(nk, 10).store_uint(nl, 10).store_uint(i, 5).store_uint(j, 5));
-                        }
-                    }
-                    idx += 1;
+        int min_i = 0;
+        int min_j = 0;
+        int min_len = 0;
+        int min_k = 0;
+        int min_l = 31 * 31;
+        int i = 0;
+        while (i < n) {
+            int j = 0;
+            while (j < m) {
+                (slice s, _) = info.dict_get?(10, i * 31 + j);
+                int len = s~load_uint(10);
+                int k = s~load_uint(10);
+                int l = s.preload_uint(10);
+                if ((l < min_l) | ((l == min_l) & ((k < min_k) | ((k == min_k) & (len < min_len))))) {
+                    min_i = i;
+                    min_j = j;
+                    min_len = len;
+                    min_k = k;
+                    min_l = l;
+                }
+                j += 1;
+            }
+            i += 1;
+        }
+        
+        int idx = 0;
+        while (idx < 8) {
+            (int di, int dj) = deltas.at(idx).unpair();
+            int ni = min_i + di;
+            int nj = min_j + dj;
+            if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
+                int x = maze.at(ni).at(nj);
+                int nk = min_k;
+                int nl = min_l;
+                if (x == "?"u) {
+                    nk += 1;
+                } elseif (x == "X"u) {
+                    nl += 1;
+                }
+                int index = ni * 31 + nj;
+                (slice s, int success) = info.udict_get?(10, index);
+                int flag = 0;
+                if (success) {
+                    int sup = s~load_uint(10);
+                    int obs = s.preload_uint(10);
+                    flag = (nl < obs) | ((nl == obs) & (nk < sup));
+                } else {
+                    flag = -1;
+                }
+                if (flag) {
+                    info~udict_set_builder(10, index,
+                        begin_cell().store_uint(nk, 10).store_uint(nl, 10).store_uint(i, 5).store_uint(j, 5));
                 }
             }
-        } until (list.null?());
-        list = new_list;
+            idx += 1;
+        }
     } until (list.null?());
 
     cell ans_dict = new_dict();
