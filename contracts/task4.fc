@@ -65,6 +65,7 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
             int nj = min_j + dj;
             if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
                 int x = maze.at(ni).at(nj);
+                int nlen = min_len + 1;
                 int nk = min_k;
                 int nl = min_l;
                 if (x == "?"u) {
@@ -76,15 +77,16 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
                 (slice s, int success) = info.udict_get?(10, index);
                 int flag = 0;
                 if (success) {
+                    int len = s~load_uint(10);
                     int sup = s~load_uint(10);
                     int obs = s.preload_uint(10);
-                    flag = (nl < obs) | ((nl == obs) & (nk < sup));
+                    flag = (nl < obs) | ((nl == obs) & ((nk < sup) | ((nk == sup) & (nlen < len))));
                 } else {
                     flag = -1;
                 }
                 if (flag) {
                     info~udict_set_builder(10, index,
-                        begin_cell().store_uint(nk, 10).store_uint(nl, 10).store_uint(i, 5).store_uint(j, 5));
+                        begin_cell().store_uint(nlen, 10).store_uint(nk, 10).store_uint(nl, 10).store_uint(i, 5).store_uint(j, 5));
                 }
             }
             idx += 1;
