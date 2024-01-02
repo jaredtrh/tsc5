@@ -34,8 +34,7 @@
     if (expected_version > version_id) {
         throw_if(200, new_code.cell_null?());
         
-        int len = 0;
-        tuple migration_list = empty_tuple();
+        tuple migration_list = null();
         int current_version = version_id;
         int success = 0;
         do {
@@ -44,19 +43,20 @@
                 current_version = ms~load_uint(32);
                 cell migration_code = ms.preload_maybe_ref();
                 ifnot (migration_code.cell_null?()) {
-                    migration_list~tpush(migration_code);
-                    len += 1;
+                    migration_list = cons(migration_code, migration_list);
                 }
             }
         } until ((current_version == expected_version) | ~ success);
 
         throw_unless(400, success);
         
-        int i = 0;
-        while (i < len) {
-            set_c3(migration_list.at(i).bless());
+        tuple tmp = null();
+        while (~ migration_list.null?()) {
+            tmp = cons(migration_list~list_next(), tmp);
+        }
+        while (~ tmp.null?()) {
+            set_c3(tmp~list_next().bless());
             storage = migrate_one(storage);
-            i += 1;
         }
         
         set_code(new_code);
