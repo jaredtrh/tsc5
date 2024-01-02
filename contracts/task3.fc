@@ -54,7 +54,7 @@
             tmp = cons(migration_list~list_next(), tmp);
         }
         while (~ tmp.null?()) {
-            set_c3(tmp~list_next().bless());
+            set_c3(tmp~list_next().begin_parse().bless());
             storage = migrate_one(storage);
         }
         
