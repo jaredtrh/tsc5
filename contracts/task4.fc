@@ -39,8 +39,8 @@ forall X -> (tuple, ()) set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     int j = 0;
     do {
         (int key, _, _) = unvis~udict::delete_get_min(40);
-        i = key / 31 % 31;
-        j = key % 31;
+        (i, j) = divmod(key, 31);
+        i %= 31;
 
         int idx = 0;
         while (idx < 8) {

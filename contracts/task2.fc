@@ -63,10 +63,9 @@
             send_raw_message(
                 begin_cell()
                     .store_uint(0x10, 6)
-                    .store_uint(4, 3)
-                    .store_uint(0, 8)
+                    .store_uint(0x400, 11)
                     .store_uint(key, 256)
-                    .store_coins(muldiv(val~load_uint(32), msg_value, total_share))
+                    .store_coins(val~load_uint(32) * msg_value / total_share)
                     .store_uint(0, 107)
                     .end_cell(),
                 1
@@ -91,12 +90,10 @@
                         begin_cell()
                             .store_uint(0x0f8a7ea5, 32)
                             .store_uint(0, 64)
-                            .store_coins(muldiv(val~load_uint(32), amount, total_share))
-                            .store_uint(4, 3)
-                            .store_uint(0, 8)
+                            .store_coins(val~load_uint(32) * amount / total_share)
+                            .store_uint(0x400, 11)
                             .store_uint(key, 256)
-                            .store_uint(4, 3)
-                            .store_uint(0, 8)
+                            .store_uint(0x400, 11)
                             .store_uint(key, 256)
                             .store_uint(0, 1)
                             .store_coins(1)
