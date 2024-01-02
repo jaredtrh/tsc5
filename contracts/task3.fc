@@ -26,8 +26,8 @@
     cell payload = in_msg_body~load_ref();
 
     slice ds = get_data().begin_parse();
-    int version_id = ds~load_uint(32);
-    cell storage = ds.preload_ref();
+    cell storage = ds~load_ref();
+    int version_id = ds.preload_uint(32);
 
     throw_if(200, expected_version < version_id);
 
@@ -68,19 +68,21 @@
 }
 
 cell get_storage() {
-    return get_data().begin_parse().skip_bits(32).preload_ref();
+    return get_data().begin_parse().preload_ref();
 }
 
 cell wrap_storage(int version_id, cell storage) {
     return begin_cell()
-        .store_uint(version_id, 32)
         .store_ref(storage)
+        .store_uint(version_id, 32)
         .end_cell();
 }
 
 ;; Return the current version of the smart contract
 int version() method_id {
-    return get_data().begin_parse().preload_uint(32);
+    slice ds = get_data().begin_parse();
+    ds~load_ref();
+    return ds.preload_uint(32);
 }
 
 ;; <<<<< Custom version-specific code begins
