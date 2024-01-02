@@ -25,8 +25,6 @@
     cell storage = ds~load_ref();
     int version_id = ds.preload_uint(32);
 
-    throw_if(200, expected_version < version_id);
-
     if (expected_version > version_id) {
         cell new_code = in_msg_body~load_maybe_ref();
         
