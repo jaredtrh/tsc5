@@ -76,7 +76,7 @@ forall X -> (tuple, ()) set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     i = s~load_uint(5);
     j = s.preload_uint(5);
     
-    do {
+    while (maze.at(i).at(j) != "S"u) {
         tuple row = maze.at(i);
         row~set_at("!"u, j);
         maze~set_at(row, i);
@@ -85,7 +85,7 @@ forall X -> (tuple, ()) set_at(tuple t, X value, int index) asm "SETINDEXVAR";
         s~skip_bits(30);
         i = s~load_uint(5);
         j = s.preload_uint(5);
-    } until (maze.at(i).at(j) == "S"u);
+    };
 
     (slice s, _) = info.udict_get?(10, e);
     int key = s.preload_uint(30);
