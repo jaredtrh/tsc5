@@ -14,6 +14,60 @@
 ;; You may delete and rewrite as needed,
 ;; but the final implementation must adhere to the same structure
 
+() recv_internal(int msg_value, int balance, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_bits() < 32) {
+        return ();
+    }
+
+    int expected_version = in_msg_body~load_uint(32);
+    if (expected_version == 0) {
+        set_data(wrap_storage(1, get_data()));
+        return ();
+    }
+
+    cell new_code = in_msg_body~load_maybe_ref();
+    cell migrations = in_msg_body~load_dict();
+    cell payload = in_msg_body~load_ref();
+
+    slice ds = get_data().begin_parse();
+    int version_id = ds~load_uint(32);
+    cell storage = ds.preload_ref();
+
+    throw_if(200, expected_version < version_id);
+
+    if (expected_version > version_id) {
+        throw_if(200, new_code.cell_null?());
+        
+        int current_version = version_id;
+        int success = 0;
+        do {
+            (slice ms, success) = migrations.udict_get?(32, current_version);
+            if (success) {
+                current_version = ms.preload_uint(32);
+            }
+        } until ((current_version == expected_version) | ~ success);
+
+        throw_unless(400, success);
+
+        do {
+            (slice ms, _) = migrations.udict_get?(32, version_id);
+            version_id = ms~load_uint(32);
+            cell migration_code = ms.preload_maybe_ref();
+            ifnot (migration_code.cell_null?()) {
+                set_c3(migration_code.begin_parse().bless());
+                storage = migrate_one(storage);
+            }
+        } until (version_id == expected_version);
+        
+        set_code(new_code);
+        set_c3(new_code.begin_parse().bless());
+    }
+
+    storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
+
+    set_data(wrap_storage(expected_version, storage));
+}
+
 cell get_storage() {
     return get_data().begin_parse().skip_bits(32).preload_ref();
 }
@@ -48,57 +102,3 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 }
 
 ;; Custom version-specific code ends >>>>>
-
-() recv_internal(int balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
-    if (in_msg_body.slice_bits() < 32) {
-        return ();
-    }
-
-    int expected_version = in_msg_body~load_uint(32);
-    if (expected_version == 0) {
-        set_data(wrap_storage(1, get_data()));
-        return ();
-    }
-
-    cell new_code = in_msg_body~load_maybe_ref();
-    cell migrations = in_msg_body~load_dict();
-    cell payload = in_msg_body~load_ref();
-
-    slice ds = get_data().begin_parse();
-    int version_id = ds~load_uint(32);
-    cell storage = ds.preload_ref();
-
-    throw_if(200, expected_version < version_id);
-
-    if (expected_version > version_id) {
-        throw_if(200, new_code.cell_null?());
-        {-
-        int current_version = version_id;
-        int success = 0;
-        do {
-            (slice ms, success) = migrations.udict_get?(32, current_version);
-            if (success) {
-                current_version = ms.preload_uint(32);
-            }
-        } until ((current_version == expected_version) | ~ success);
-
-        throw_unless(400, success);
-
-        do {
-            (slice ms, _) = migrations.udict_get?(32, version_id);
-            version_id = ms~load_uint(32);
-            cell migration_code = ms.preload_maybe_ref();
-            ifnot (migration_code.cell_null?()) {
-                set_c3(migration_code.begin_parse().bless());
-                storage = migrate_one(storage);
-            }
-        } until (version_id == expected_version);
-        -}
-        set_code(new_code);
-        set_c3(new_code.begin_parse().bless());
-    }
-
-    storage = process_message(storage, balance, msg_value, in_msg_full, payload.begin_parse());
-
-    set_data(wrap_storage(expected_version, storage));
-}
