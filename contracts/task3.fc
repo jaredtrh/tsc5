@@ -26,8 +26,6 @@
     int version_id = ds.preload_uint(32);
 
     throw_if(200, expected_version < version_id);
-    
-    cell payload = in_msg_body~load_ref();
 
     if (expected_version > version_id) {
         cell new_code = in_msg_body~load_maybe_ref();
@@ -64,7 +62,7 @@
         set_c3(new_code.begin_parse().bless());
     }
 
-    storage = process_message(storage, msg_value, balance, in_msg_full, payload.begin_parse());
+    storage = process_message(storage, msg_value, balance, in_msg_full, in_msg_body~load_ref().begin_parse());
 
     set_data(wrap_storage(expected_version, storage));
 }
