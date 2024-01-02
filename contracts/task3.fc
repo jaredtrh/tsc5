@@ -34,26 +34,30 @@
     if (expected_version > version_id) {
         throw_if(200, new_code.cell_null?());
         
+        int len = 0;
+        tuple migration_list = empty_tuple();
         int current_version = version_id;
         int success = 0;
         do {
             (slice ms, success) = migrations.udict_get?(32, current_version);
             if (success) {
-                current_version = ms.preload_uint(32);
+                current_version = ms~load_uint(32);
+                cell migration_code = ms.preload_maybe_ref();
+                ifnot (migration_code.cell_null?()) {
+                    migration_list~tpush(migration_code);
+                    len += 1;
+                }
             }
         } until ((current_version == expected_version) | ~ success);
 
         throw_unless(400, success);
-
-        do {
-            (slice ms, _) = migrations.udict_get?(32, version_id);
-            version_id = ms~load_uint(32);
-            cell migration_code = ms.preload_maybe_ref();
-            ifnot (migration_code.cell_null?()) {
-                set_c3(migration_code.begin_parse().bless());
-                storage = migrate_one(storage);
-            }
-        } until (version_id == expected_version);
+        
+        int i = 0;
+        while (i < len) {
+            set_c3(migration_list.at(i).bless());
+            storage = migrate_one(storage);
+            i += 1;
+        }
         
         set_code(new_code);
         set_c3(new_code.begin_parse().bless());
