@@ -31,7 +31,6 @@ int dist(int i, int j, int ei, int ej) inline {
             if (x == "S"u) {
                 si = i;
                 sj = j;
-                unvis~udict_set_builder(40, dist(i, j, ei, ej) * 961 + i * 31 + j, begin_cell());
                 info_row~tpush(begin_cell().store_uint(0, 30).end_cell().begin_parse());
             } else {
                 if (x == "E"u) {
@@ -45,6 +44,7 @@ int dist(int i, int j, int ei, int ej) inline {
         info~tpush(info_row);
         i += 1;
     }
+    unvis~udict_set_builder(40, dist(si, sj, ei, ej) * 961 + si * 31 + sj, begin_cell());
     
     tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
     int i = 0;
