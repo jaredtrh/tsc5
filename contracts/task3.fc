@@ -72,22 +72,28 @@ cell migrate_one(cell old_storage) { ;; it's just a placeholder that is required
 
     if (expected_version > version_id) {
         throw_if(200, new_code.cell_null?());
-
+        {-
+        int current_version = version_id;
         int success = 0;
         do {
-            (slice ms, success) = migrations.udict_get?(32, version_id);
+            (slice ms, success) = migrations.udict_get?(32, current_version);
             if (success) {
-                version_id = ms~load_uint(32);
-                cell migration_code = ms.preload_maybe_ref();
-                ifnot (migration_code.cell_null?()) {
-                    set_c3(migration_code.begin_parse().bless());
-                    storage = migrate_one(storage);
-                }
+                current_version = ms.preload_uint(32);
             }
-        } until ((version_id == expected_version) | ~ success);
+        } until ((current_version == expected_version) | ~ success);
 
         throw_unless(400, success);
 
+        do {
+            (slice ms, _) = migrations.udict_get?(32, version_id);
+            version_id = ms~load_uint(32);
+            cell migration_code = ms.preload_maybe_ref();
+            ifnot (migration_code.cell_null?()) {
+                set_c3(migration_code.begin_parse().bless());
+                storage = migrate_one(storage);
+            }
+        } until (version_id == expected_version);
+        -}
         set_code(new_code);
         set_c3(new_code.begin_parse().bless());
     }
