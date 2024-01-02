@@ -24,7 +24,7 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
             if (x == "E"u) {
                 si = i;
                 sj = j;
-                unvis~udict_set_builder(40, i * 31 + j, begin_cell());
+                unvis~udict_set_builder(40, i * 31 + j, begin_cell().store_uint(i, 5).store_uint(j, 5));
                 info_row~tpush(begin_cell().store_uint(0, 30).end_cell().begin_parse());
             } else {
                 info_row~tpush(begin_cell().store_uint(961 * 961 * 961, 30).end_cell().begin_parse());
@@ -39,9 +39,9 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     int i = 0;
     int j = 0;
     do {
-        (int key, _, _) = unvis~udict_rem_min(40);
-        (i, j) = divmod(key, 31);
-        i %= 31;
+        (int key, slice val, _) = unvis~udict_rem_min(40);
+        i = val~load_uint(5);
+        j = val.preload_uint(5);
 
         int idx = 0;
         while (idx < 8) {
@@ -59,7 +59,7 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
                 int oldkey = info.at(ni).at(nj).preload_uint(30) * 961 + ni * 31 + nj;
                 if (nkey < oldkey) {
                     unvis~udict_delete?(40, oldkey);
-                    unvis~udict_set_builder(40, nkey, begin_cell());
+                    unvis~udict_set_builder(40, nkey, begin_cell().store_uint(ni, 5).store_uint(nj, 5));
                     info~set_at(info.at(ni).set_at(begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5).end_cell().begin_parse(), nj), ni);
                 }
             }
