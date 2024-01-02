@@ -35,18 +35,17 @@
         throw_if(200, new_code.cell_null?());
         
         tuple migration_list = null();
-        int current_version = version_id;
         int success = 0;
         do {
-            (slice ms, success) = migrations.udict_get?(32, current_version);
+            (slice ms, success) = migrations.udict_get?(32, version_id);
             if (success) {
-                current_version = ms~load_uint(32);
+                version_id = ms~load_uint(32);
                 cell migration_code = ms.preload_maybe_ref();
                 ifnot (migration_code.cell_null?()) {
                     migration_list = cons(migration_code, migration_list);
                 }
             }
-        } until ((current_version == expected_version) | ~ success);
+        } until ((version_id == expected_version) | ~ success);
 
         throw_unless(400, success);
         
