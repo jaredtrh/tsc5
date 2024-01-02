@@ -9,8 +9,21 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     
 }
 
-int dist(int i, int j, int ei, int ej) inline {
-    return (i - ei) * (i - ei) + (j - ej) * (j - ej);
+(cell, tuple) push(tuple maze, cell unvis, tuple info, int i, int j, int key, int ni, int nj) inline {
+    int x = maze.at(ni).at(nj);
+    int nkey = key + 961 + (ni - i) * 31 + nj - j;
+    if (x == "?"u) {
+        nkey += 961 * 31 * 31;
+    } elseif (x == "X"u) {
+        nkey += 961 * 961 * 31 * 31;
+    }
+    int oldkey = info.at(ni).at(nj).preload_uint(30) * 961 + ni * 31 + nj;
+    if (nkey < oldkey) {
+        unvis~udict_delete?(40, oldkey);
+        unvis~udict_set_builder(40, nkey, begin_cell());
+        info~set_at(info.at(ni).set_at(begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5).end_cell().begin_parse(), nj), ni);
+    }
+    return (unvis, info);
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
@@ -18,9 +31,6 @@ int dist(int i, int j, int ei, int ej) inline {
     tuple info = empty_tuple();
     int si = 0;
     int sj = 0;
-    int ei = 0;
-    int ej = 0;
-
     int i = 0;
     while (i < n) {
         tuple maze_row = maze.at(i);
@@ -28,25 +38,20 @@ int dist(int i, int j, int ei, int ej) inline {
         int j = 0;
         while (j < m) {
             int x = maze_row.at(j);
-            if (x == "S"u) {
+            if (x == "E"u) {
                 si = i;
                 sj = j;
+                unvis~udict_set_builder(40, i * 31 + j, begin_cell());
                 info_row~tpush(begin_cell().store_uint(0, 30).end_cell().begin_parse());
             } else {
-                if (x == "E"u) {
-                    ei = i;
-                    ej = j;
-                }
-                info_row~tpush(begin_cell().store_uint(1073741823, 30).end_cell().begin_parse());
+                info_row~tpush(begin_cell().store_uint(961 * 961 * 961, 30).end_cell().begin_parse());
             }
             j += 1;
         }
         info~tpush(info_row);
         i += 1;
     }
-    unvis~udict_set_builder(40, dist(si, sj, ei, ej) * 961 + si * 31 + sj, begin_cell());
     
-    tuple deltas = to_tuple([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
     int i = 0;
     int j = 0;
     do {
@@ -54,36 +59,38 @@ int dist(int i, int j, int ei, int ej) inline {
         (i, j) = divmod(key, 31);
         i %= 31;
 
-        int idx = 0;
-        while (idx < 8) {
-            (int di, int dj) = deltas.at(idx).unpair();
-            int ni = i + di;
-            int nj = j + dj;
-            if ((ni >= 0) & (ni < n) & (nj >= 0) & (nj < m)) {
-                int x = maze.at(ni).at(nj);
-                int nkey = key + (dist(ni, nj, ei, ej) - dist(i, j, ei, ej)) * 961 + 961 + di * 31 + dj;
-                if (x == "?"u) {
-                    nkey += 961 * 31 * 31;
-                } elseif (x == "X"u) {
-                    nkey += 961 * 961 * 31 * 31;
-                }
-                int oldkey = info.at(ni).at(nj).preload_uint(30) * 961 + ni * 31 + nj;
-                if (nkey < oldkey) {
-                    unvis~udict_delete?(40, oldkey);
-                    unvis~udict_set_builder(40, nkey, begin_cell());
-                    info~set_at(info.at(ni).set_at(begin_cell().store_uint(nkey / 961, 30).store_uint(i, 5).store_uint(j, 5).end_cell().begin_parse(), nj), ni);
-                }
+        if (i > 0) {
+            if (j > 0) {
+                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j - 1);
             }
-            idx += 1;
+            (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j);
+            if (j + 1 < m) {
+                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j + 1);
+            }
         }
-    } until (maze.at(i).at(j) == "E"u);
+        if (j > 0) {
+            (unvis, info) = push(maze, unvis, info, i, j, key, i, j - 1);
+        }
+        if (j + 1 < m) {
+            (unvis, info) = push(maze, unvis, info, i, j, key, i, j + 1);
+        }
+        if (i + 1 < n) {
+            if (j > 0) {
+                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j - 1);
+            }
+            (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j);
+            if (j + 1 < m) {
+                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j + 1);
+            }
+        }
+    } until (maze.at(i).at(j) == "S"u);
 
     slice s = info.at(i).at(j);
-    int key = s~load_uint(30) - dist(i, j, ei, ej);
+    int key = s~load_uint(30);
     i = s~load_uint(5);
     j = s.preload_uint(5);
     
-    while (maze.at(i).at(j) != "S"u) {
+    while (maze.at(i).at(j) != "E"u) {
         maze~set_at(maze.at(i).set_at("!"u, j), i);
 
         slice s = info.at(i).at(j);
