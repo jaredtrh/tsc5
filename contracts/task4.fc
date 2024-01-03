@@ -8,7 +8,7 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     
 }
 
-(cell, tuple) push(tuple maze, cell unvis, tuple info, int i, int j, int key, int ni, int nj) inline {
+(cell, tuple) push(tuple maze, cell unvis, tuple info, int i, int j, int key, int ni, int nj, slice empty) inline {
     int x = maze.at(ni).at(nj);
     int nkey = key + ni * 31 + nj;
     if (x == "?"u) {
@@ -19,14 +19,15 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     int oldkey = info.at(ni).at(nj).at(0);
     if (nkey < oldkey) {
         unvis~udict_delete?(40, oldkey);
-        unvis~udict_set_builder(40, nkey, begin_cell());
+        unvis~udict_set(40, nkey, empty);
         info~set_at(info.at(ni).set_at(triple(nkey, i, j), nj), ni);
     }
     return (unvis, info);
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
-    ;;set_gas_limit(10000000000);
+    set_gas_limit(10000000000);
+    slice empty = begin_cell().end_cell().begin_parse();
     cell unvis = new_dict();
     tuple info = empty_tuple();
     int si = 0;
@@ -41,7 +42,7 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
             if (x == "E"u) {
                 si = i;
                 sj = j;
-                unvis~udict_set_builder(40, i * 31 + j, begin_cell());
+                unvis~udict_set(40, i * 31 + j, empty);
                 info_row~tpush(single(i * 31 + j));
             } else {
                 info_row~tpush(single(852891037441));
@@ -62,26 +63,26 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
 
         if (i > 0) {
             if (j > 0) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j - 1);
+                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j - 1, empty);
             }
-            (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j);
+            (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j, empty);
             if (j + 1 < m) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j + 1);
+                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j + 1, empty);
             }
         }
         if (j > 0) {
-            (unvis, info) = push(maze, unvis, info, i, j, key, i, j - 1);
+            (unvis, info) = push(maze, unvis, info, i, j, key, i, j - 1, empty);
         }
         if (j + 1 < m) {
-            (unvis, info) = push(maze, unvis, info, i, j, key, i, j + 1);
+            (unvis, info) = push(maze, unvis, info, i, j, key, i, j + 1, empty);
         }
         if (i + 1 < n) {
             if (j > 0) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j - 1);
+                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j - 1, empty);
             }
-            (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j);
+            (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j, empty);
             if (j + 1 < m) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j + 1);
+                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j + 1, empty);
             }
         }
     } until (maze.at(i).at(j) == "S"u);
