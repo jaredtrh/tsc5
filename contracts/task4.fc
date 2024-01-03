@@ -8,26 +8,23 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     
 }
 
-(cell, tuple) push(tuple maze, cell unvis, tuple info, int i, int j, int key, int ni, int nj) inline {
+tuple push(tuple maze, tuple info, int i, int j, int key, int ni, int nj) inline {
     int x = maze.at(ni).at(nj);
-    int nkey = key + ni * 31 + nj;
+    int nkey = key;
     if (x == "?"u) {
-        nkey += 923521;
+        nkey += 961;
     } elseif (x == "X"u) {
-        nkey += 887503681;
+        nkey += 961 * 961;
     }
     int oldkey = info.at(ni).at(nj).at(0);
     if (nkey < oldkey) {
-        unvis~udict_delete?(40, oldkey);
-        unvis~udict_set_builder(40, nkey, begin_cell());
         info~set_at(info.at(ni).set_at(triple(nkey, i, j), nj), ni);
     }
-    return (unvis, info);
+    return info;
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
-    ;;set_gas_limit(10000000000);
-    cell unvis = new_dict();
+    set_gas_limit(10000000000);
     tuple info = empty_tuple();
     int si = 0;
     int sj = 0;
@@ -38,13 +35,12 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
         int j = 0;
         while (j < m) {
             int x = maze_row.at(j);
-            if (x == "S"u) {
+            if (x == "E"u) {
                 si = i;
                 sj = j;
-                unvis~udict_set_builder(40, i * 31 + j, begin_cell());
-                info_row~tpush(single(i * 31 + j));
+                info_row~tpush(single(0));
             } else {
-                info_row~tpush(single(852891037441));
+                info_row~tpush(single(887503681));
             }
             j += 1;
         }
@@ -55,41 +51,51 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     int i = 0;
     int j = 0;
     do {
-        (int key, _, _) = unvis~udict_rem_min(40);
-        (i, j) = divmod(key, 31);
-        i %= 31;
-        key += 961 - i * 31 - j;
+        int key = 887503681;
+        int xi = 0;
+        while (xi < n) {
+            int xj = 0;
+            while (xj < m) {
+                int xkey = info.at(xi).at(xj).at(0);
+                if (xkey < key) {
+                    key = xkey;
+                    i = xi;
+                    j = xj;
+                }
+                xj += 1;
+            }
+            xi += 1;
+        }
+        key += 1;
 
         if (i > 0) {
             if (j > 0) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j - 1);
+                info = push(maze, info, i, j, key, i - 1, j - 1);
             }
-            (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j);
+            info = push(maze, info, i, j, key, i - 1, j);
             if (j + 1 < m) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i - 1, j + 1);
+                info = push(maze, info, i, j, key, i - 1, j + 1);
             }
         }
         if (j > 0) {
-            (unvis, info) = push(maze, unvis, info, i, j, key, i, j - 1);
+            info = push(maze, info, i, j, key, i, j - 1);
         }
         if (j + 1 < m) {
-            (unvis, info) = push(maze, unvis, info, i, j, key, i, j + 1);
+            info = push(maze, info, i, j, key, i, j + 1);
         }
         if (i + 1 < n) {
             if (j > 0) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j - 1);
+                info = push(maze, info, i, j, key, i + 1, j - 1);
             }
-            (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j);
+            info = push(maze, info, i, j, key, i + 1, j);
             if (j + 1 < m) {
-                (unvis, info) = push(maze, unvis, info, i, j, key, i + 1, j + 1);
+                info = push(maze, info, i, j, key, i + 1, j + 1);
             }
         }
-    } until (maze.at(i).at(j) == "E"u);
+    } until (maze.at(i).at(j) == "S"u);
 
     (int key, i, j) = info.at(i).at(j).untriple();
-    key /= 961;
-    
-    while (maze.at(i).at(j) != "S"u) {
+    while (maze.at(i).at(j) != "E"u) {
         maze~set_at(maze.at(i).set_at("!"u, j), i);
         (_, i, j) = info.at(i).at(j).untriple();
     };
