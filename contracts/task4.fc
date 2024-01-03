@@ -12,9 +12,9 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     int x = maze.at(ni).at(nj);
     int nkey = key + ni * 31 + nj;
     if (x == "?"u) {
-        nkey += 961 * 31 * 31;
+        nkey += 923521;
     } elseif (x == "X"u) {
-        nkey += 961 * 961 * 31 * 31;
+        nkey += 887503681;
     }
     int oldkey = info.at(ni).at(nj).at(0);
     if (nkey < oldkey) {
@@ -44,7 +44,7 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
                 unvis~udict_set_builder(40, i * 31 + j, begin_cell());
                 info_row~tpush(single(i * 31 + j));
             } else {
-                info_row~tpush(single(961 * 961 * 961 * 961));
+                info_row~tpush(single(852891037441));
             }
             j += 1;
         }
