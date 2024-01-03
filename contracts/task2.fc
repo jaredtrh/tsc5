@@ -52,7 +52,7 @@
         (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             int user_share = val.preload_uint(32);
-            user_list = cons(pair(key, user_share), user_list);
+            user_list = cons([key, user_share], user_list);
             total_share += user_share;
             
             (key, val, flag) = users.udict_get_next?(256, key);
@@ -62,7 +62,7 @@
             .store_uint(0x10, 6)
             .store_uint(0x400, 11);
 
-        while (~ user_list.null?()) {
+        do {
             (int key, int val) = user_list~list_next().unpair();
 
             send_raw_message(
@@ -72,7 +72,7 @@
                 .end_cell(),
                 1
             );
-        }
+        } until (user_list.null?());
     } else {
         throw_if(122, users.dict_empty?());
 
@@ -84,7 +84,7 @@
         (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             int user_share = val.preload_uint(32);
-            user_list = cons(pair(key, user_share), user_list);
+            user_list = cons([key, user_share], user_list);
             total_share += user_share;
             
             (key, val, flag) = users.udict_get_next?(256, key);
@@ -99,7 +99,7 @@
             .store_uint(0x0f8a7ea5, 32)
             .store_uint(0, 64);
 
-        while (~ user_list.null?()) {
+        do {
             (int key, int val) = user_list~list_next().unpair();
 
             send_raw_message(
@@ -117,14 +117,12 @@
                 .end_cell(),
                 1
             );
-        }
+        } until (user_list.null?());
     }
 }
 
 cell load_users() inline {
-    slice ds = get_data().begin_parse();
-    ds~load_msg_addr();
-    return ds.preload_dict();
+    return get_data().begin_parse().skip_bits(267).preload_dict();
 }
 
 cell get_users() method_id {
