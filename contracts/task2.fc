@@ -92,7 +92,7 @@
         while (flag) {
             send_raw_message(
                 b.store_ref(
-                    b.store_coins(val~load_uint(32) * amount / total_share)
+                    c.store_coins(val~load_uint(32) * amount / total_share)
                     .store_uint(0x400, 11)
                     .store_uint(key, 256)
                     .store_uint(0x400, 11)
