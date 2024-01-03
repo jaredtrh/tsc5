@@ -13,19 +13,19 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     if (x == "?"u) {
         key += 923521;
     } elseif (x == "X"u) {
-        key += 887503681;
+        key += 28629151;
     }
     int oldkey = info.at(ni).at(nj).at(0);
     if (key < oldkey) {
-        unvis~udict_delete?(40, oldkey);
-        unvis~udict_set_builder(40, key, begin_cell());
+        unvis~udict_delete?(30, oldkey);
+        unvis~udict_set_builder(30, key, begin_cell());
         info~set_at(info.at(ni).set_at(triple(key, i, j), nj), ni);
     }
     return (unvis, info);
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
-    ;;set_gas_limit(10000000000);
+    set_gas_limit(10000000000);
     cell unvis = new_dict();
     tuple info = empty_tuple();
     int si = 0;
@@ -40,10 +40,10 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
             if (x == "E"u) {
                 si = i;
                 sj = j;
-                unvis~udict_set_builder(40, i * 31 + j, begin_cell());
+                unvis~udict_set_builder(30, i * 31 + j, begin_cell());
                 info_row~tpush(single(i * 31 + j));
             } else {
-                info_row~tpush(single(852891037441));
+                info_row~tpush(single(887503681));
             }
             j += 1;
         }
@@ -54,7 +54,7 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     int i = 0;
     int j = 0;
     do {
-        (int key, _, _) = unvis~udict_rem_min(40);
+        (int key, _, _) = unvis~udict_rem_min(30);
         (i, j) = divmod(key, 31);
         i %= 31;
         key += 961;
@@ -95,5 +95,5 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
         (_, i, j) = info.at(i).at(j).untriple();
     };
 
-    return (key / 923521, key / 961 % 961, key % 961, maze);
+    return (key / 29791, key / 961 % 31, key % 961, maze);
 }
