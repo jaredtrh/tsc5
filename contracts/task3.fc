@@ -54,7 +54,7 @@
             storage = migrate_one(storage);
         }
         
-        ;;set_code(new_code);
+        set_code(new_code);
         set_c3(new_code.begin_parse().bless());
     }
 
