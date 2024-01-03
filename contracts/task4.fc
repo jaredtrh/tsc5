@@ -2,7 +2,6 @@
 
 forall X -> tuple set_at(tuple t, X value, int index) asm "SETINDEXVAR";
 forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
-(cell, (int, slice, int)) udict_rem_min(cell dict, int key_len) asm(-> 0 2 1 3) "DICTUREMMIN";
 
 () recv_internal() impure {
     
@@ -10,28 +9,29 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
 
 tuple push(tuple maze, tuple info, int i, int j, int key, int ni, int nj) inline {
     int x = maze.at(ni).at(nj);
-    int nkey = key;
     if (x == "?"u) {
-        nkey += 961;
+        key += 961;
     } elseif (x == "X"u) {
-        nkey += 961 * 961;
+        key += 961 * 961;
     }
     int oldkey = info.at(ni).at(nj).at(0);
-    if (nkey < oldkey) {
-        info~set_at(info.at(ni).set_at(triple(nkey, i, j), nj), ni);
+    if (key < oldkey) {
+        info~set_at(info.at(ni).set_at(triple(key, i, j), nj), ni);
     }
     return info;
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
-    set_gas_limit(10000000000);
+    ;;set_gas_limit(10000000000);
     tuple info = empty_tuple();
+    tuple vis = empty_tuple();
     int si = 0;
     int sj = 0;
     int i = 0;
     while (i < n) {
         tuple maze_row = maze.at(i);
         tuple info_row = empty_tuple();
+        tuple vis_row = empty_tuple();
         int j = 0;
         while (j < m) {
             int x = maze_row.at(j);
@@ -42,9 +42,11 @@ tuple push(tuple maze, tuple info, int i, int j, int key, int ni, int nj) inline
             } else {
                 info_row~tpush(single(887503681));
             }
+            vis_row~tpush(false);
             j += 1;
         }
         info~tpush(info_row);
+        vis~tpush(vis_row);
         i += 1;
     }
     
@@ -56,16 +58,19 @@ tuple push(tuple maze, tuple info, int i, int j, int key, int ni, int nj) inline
         while (xi < n) {
             int xj = 0;
             while (xj < m) {
-                int xkey = info.at(xi).at(xj).at(0);
-                if (xkey < key) {
-                    key = xkey;
-                    i = xi;
-                    j = xj;
+                ifnot (vis.at(xi).at(xj)) {
+                    int xkey = info.at(xi).at(xj).at(0);
+                    if (xkey < key) {
+                        key = xkey;
+                        i = xi;
+                        j = xj;
+                    }
                 }
                 xj += 1;
             }
             xi += 1;
         }
+        vis~set_at(vis.at(i).set_at(true, j), i);
         key += 1;
 
         if (i > 0) {
