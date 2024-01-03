@@ -58,16 +58,17 @@
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());
 
+        builder b = begin_cell()
+            .store_uint(0x10, 6)
+            .store_uint(0x400, 11);
+
         (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             send_raw_message(
-                begin_cell()
-                    .store_uint(0x10, 6)
-                    .store_uint(0x400, 11)
-                    .store_uint(key, 256)
-                    .store_coins(val~load_uint(32) * msg_value / total_share)
-                    .store_uint(0, 107)
-                    .end_cell(),
+                b.store_uint(key, 256)
+                .store_coins(val~load_uint(32) * msg_value / total_share)
+                .store_uint(0, 107)
+                .end_cell(),
                 1
             );
             
@@ -83,23 +84,23 @@
             .store_slice(sender_address)
             .store_coins(20000000)
             .store_uint(1, 107);
+        builder c = begin_cell()
+            .store_uint(0x0f8a7ea5, 32)
+            .store_uint(0, 64);
         
         (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             send_raw_message(
                 b.store_ref(
-                    begin_cell()
-                        .store_uint(0x0f8a7ea5, 32)
-                        .store_uint(0, 64)
-                        .store_coins(val~load_uint(32) * amount / total_share)
-                        .store_uint(0x400, 11)
-                        .store_uint(key, 256)
-                        .store_uint(0x400, 11)
-                        .store_uint(key, 256)
-                        .store_uint(0, 1)
-                        .store_coins(1)
-                        .store_uint(0, 1)
-                        .end_cell()
+                    b.store_coins(val~load_uint(32) * amount / total_share)
+                    .store_uint(0x400, 11)
+                    .store_uint(key, 256)
+                    .store_uint(0x400, 11)
+                    .store_uint(key, 256)
+                    .store_uint(0, 1)
+                    .store_coins(1)
+                    .store_uint(0, 1)
+                    .end_cell()
                 )
                 .end_cell(),
                 1

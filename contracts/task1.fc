@@ -39,7 +39,7 @@
         );
     } else {
         ds~skip_bits(256);
-        throw_if(124, now() <= ds~load_uint(32));
+        throw_if(124, now() <= ds.preload_uint(32));
         accept_message();
 
         send_raw_message(
