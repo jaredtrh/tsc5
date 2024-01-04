@@ -60,9 +60,7 @@
         set_c3(new_code.begin_parse().bless());
     }
 
-    storage = process_message(storage, msg_value, balance, in_msg_full, in_msg_body.preload_ref().begin_parse());
-
-    set_data(wrap_storage(expected_version, storage));
+    set_data(wrap_storage(expected_version, process_message(storage, msg_value, balance, in_msg_full, in_msg_body.preload_ref().begin_parse())));
 }
 
 cell get_storage() inline {
