@@ -101,14 +101,16 @@
 
         do {
             (int key, int val) = user_list~list_next().unpair();
+            
+            builder d = begin_cell()
+                .store_uint(0x400, 11)
+                .store_uint(key, 256);
 
             send_raw_message(
                 b.store_ref(
                     c.store_coins(muldiv(val, amount, total_share))
-                    .store_uint(0x400, 11)
-                    .store_uint(key, 256)
-                    .store_uint(0x400, 11)
-                    .store_uint(key, 256)
+                    .store_builder(d)
+                    .store_builder(d)
                     .store_uint(0, 1)
                     .store_coins(1)
                     .store_uint(0, 1)

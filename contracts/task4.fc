@@ -25,7 +25,6 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
 }
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
-    set_gas_limit(10000000000);
     cell unvis = new_dict();
     tuple info = empty_tuple();
     int si = 0;
