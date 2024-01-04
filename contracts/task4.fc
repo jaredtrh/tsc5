@@ -3,6 +3,7 @@
 forall X -> tuple set_at(tuple t, X value, int index) asm "SETINDEXVAR";
 forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
 (cell, (int, slice, int)) udict_rem_min(cell dict, int key_len) asm(-> 0 2 1 3) "DICTUREMMIN";
+forall X -> tuple single_tuple(X x) asm "SINGLE";
 
 () recv_internal() impure {
     
@@ -24,15 +25,20 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
     return (unvis, info);
 }
 
+tuple init_tuple(tuple t, int n) asm """
+    DUP DEC REPEAT:<{ s1 PUSH SWAP }>
+    TUPLEVAR
+""";
+
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
+    ;;set_gas_limit(10000000000);
+    tuple info = init_tuple(init_tuple(single_tuple(887503681), m), n);
     cell unvis = new_dict();
-    tuple info = empty_tuple();
     int si = 0;
     int sj = 0;
     int i = 0;
     while (i < n) {
         tuple maze_row = maze.at(i);
-        tuple info_row = empty_tuple();
         int j = 0;
         while (j < m) {
             int x = maze_row.at(j);
@@ -40,13 +46,10 @@ forall X -> (tuple, ()) ~set_at(tuple t, X value, int index) asm "SETINDEXVAR";
                 si = i;
                 sj = j;
                 unvis~udict_set_builder(30, i * 31 + j, begin_cell());
-                info_row~tpush(single(i * 31 + j));
-            } else {
-                info_row~tpush(single(887503681));
+                info~set_at(info.at(i).set_at(single(0), j), i);
             }
             j += 1;
         }
-        info~tpush(info_row);
         i += 1;
     }
     
