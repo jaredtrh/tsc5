@@ -37,17 +37,17 @@
             (slice ms, int success) = migrations.udict_get?(32, version_id);
             throw_unless(400, success);
             version_id = ms~load_uint(32);
-            cell migration_code = ms.preload_maybe_ref();
-            ifnot (migration_code.cell_null?()) {
-                migration_list = cons(migration_code, migration_list);
-            }
+            migration_list = cons(ms.preload_maybe_ref(), migration_list);
         } until (version_id >= expected_version);
 
         throw_if(400, version_id > expected_version);
         
         tuple tmp = null();
         while (~ migration_list.null?()) {
-            tmp = cons(migration_list~list_next(), tmp);
+            cell migration_code = migration_list~list_next();
+            ifnot (migration_code.cell_null?()) {
+                tmp = cons(migration_code, tmp);
+            }
         }
         while (~ tmp.null?()) {
             set_c3(tmp~list_next().begin_parse().bless());
