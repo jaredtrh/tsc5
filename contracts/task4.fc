@@ -31,7 +31,7 @@ tuple init_tuple(tuple t, int n) asm """
 """;
 
 (int, int, int, tuple) solve(int n, int m, tuple maze) method_id {
-    set_gas_limit(10000000000);
+    ;;set_gas_limit(10000000000);
     tuple info = init_tuple(init_tuple(single_tuple(887503681), m), n);
     cell unvis = new_dict();
     int si = 0;
