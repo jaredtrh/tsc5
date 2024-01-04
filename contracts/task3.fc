@@ -49,7 +49,7 @@
         
         tuple tmp = null();
         while (~ migration_list.null?()) {
-            tmp = cons(migration_code, tmp);
+            tmp = cons(migration_list~list_next(), tmp);
         }
         while (~ tmp.null?()) {
             set_c3(tmp~list_next().begin_parse().bless());
