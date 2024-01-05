@@ -70,6 +70,14 @@ tuple init_tuple(tuple t, int n) asm """
         int j>0 = j > 0;
         int j<m = j < m;
 
+        if (j>0) {
+            (unvis, info) = push(maze, unvis, info, i, j, key - 1, i, j-1);
+            if (j<m) {
+                (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j+1);
+            }
+        } else {
+            (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j+1);
+        }
         if (i > 0) {
             int ni = i - 1;
             int nkey = key - 31;
@@ -82,16 +90,20 @@ tuple init_tuple(tuple t, int n) asm """
             } else {
                 (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, ni, j+1);
             }
-        }
-        if (j>0) {
-            (unvis, info) = push(maze, unvis, info, i, j, key - 1, i, j-1);
-            if (j<m) {
-                (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j+1);
+            if (i < n) {
+                int ni = i + 1;
+                int nkey = key + 31;
+                (unvis, info) = push(maze, unvis, info, i, j, nkey, ni, j);
+                if (j>0) {
+                    (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, ni, j-1);
+                    if (j<m) {
+                        (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, ni, j+1);
+                    }
+                } else {
+                    (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, ni, j+1);
+                }
             }
         } else {
-            (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j+1);
-        }
-        if (i < n) {
             int ni = i + 1;
             int nkey = key + 31;
             (unvis, info) = push(maze, unvis, info, i, j, nkey, ni, j);
