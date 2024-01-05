@@ -49,13 +49,13 @@
         tuple user_list = null();
         int total_share = 0;
 
-        (int key, slice val, int flag) = users.udict_get_max?(256);
+        (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             int user_share = val.preload_uint(32);
             user_list = cons([key, user_share], user_list);
             total_share += user_share;
             
-            (key, val, flag) = users.udict_get_prev?(256, key);
+            (key, val, flag) = users.udict_get_next?(256, key);
         }
 
         builder b = begin_cell()
@@ -81,13 +81,13 @@
         tuple user_list = null();
         int total_share = 0;
 
-        (int key, slice val, int flag) = users.udict_get_max?(256);
+        (int key, slice val, int flag) = users.udict_get_min?(256);
         while (flag) {
             int user_share = val.preload_uint(32);
             user_list = cons([key, user_share], user_list);
             total_share += user_share;
             
-            (key, val, flag) = users.udict_get_prev?(256, key);
+            (key, val, flag) = users.udict_get_next?(256, key);
         }
 
         builder b = begin_cell()

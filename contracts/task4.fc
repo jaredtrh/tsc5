@@ -63,22 +63,6 @@ tuple init_tuple(tuple t, int n) asm """
         i %= 31;
         key += 961;
 
-        if (i > 0) {
-            int nkey = key - 31;
-            if (j > 0) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, i - 1, j - 1);
-            }
-            (unvis, info) = push(maze, unvis, info, i, j, nkey, i - 1, j);
-            if (j + 1 < m) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, i - 1, j + 1);
-            }
-        }
-        if (j > 0) {
-            (unvis, info) = push(maze, unvis, info, i, j, key - 1, i, j - 1);
-        }
-        if (j + 1 < m) {
-            (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j + 1);
-        }
         if (i + 1 < n) {
             int nkey = key + 31;
             if (j > 0) {
@@ -87,6 +71,22 @@ tuple init_tuple(tuple t, int n) asm """
             (unvis, info) = push(maze, unvis, info, i, j, nkey, i + 1, j);
             if (j + 1 < m) {
                 (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, i + 1, j + 1);
+            }
+        }
+        if (j > 0) {
+            (unvis, info) = push(maze, unvis, info, i, j, key - 1, i, j - 1);
+        }
+        if (j + 1 < m) {
+            (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j + 1);
+        }
+        if (i > 0) {
+            int nkey = key - 31;
+            if (j > 0) {
+                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, i - 1, j - 1);
+            }
+            (unvis, info) = push(maze, unvis, info, i, j, nkey, i - 1, j);
+            if (j + 1 < m) {
+                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, i - 1, j + 1);
             }
         }
     } until (maze.at(i).at(j) == "S"u);
