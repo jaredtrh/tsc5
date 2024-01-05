@@ -36,23 +36,23 @@ tuple init_tuple(tuple t, int n) asm """
     cell unvis = new_dict();
     int si = 0;
     int sj = 0;
-    int i = 0;
-    while (i < n) {
+    int i = n - 1;
+    while (i >= 0) {
         tuple maze_row = maze.at(i);
-        int j = 0;
-        while (j < m) {
+        int j = m - 1;
+        while (j >= 0) {
             int x = maze_row.at(j);
-            if (x == "S"u) {
+            if (x == "E"u) {
                 si = i;
                 sj = j;
                 unvis~udict_set_builder(30, i * 31 + j, begin_cell());
                 info~set_at(info.at(i).set_at(single(0), j), i);
-                i = 30;
-                j = 30;
+                i = -1;
+                j = -1;
             }
-            j += 1;
+            j -= 1;
         }
-        i += 1;
+        i -= 1;
     }
     
     int i = 0;
@@ -89,12 +89,12 @@ tuple init_tuple(tuple t, int n) asm """
                 (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, i + 1, j + 1);
             }
         }
-    } until (maze.at(i).at(j) == "E"u);
+    } until (maze.at(i).at(j) == "S"u);
 
     (int key, i, j) = info.at(i).at(j).untriple();
     key /= 961;
     
-    while (maze.at(i).at(j) != "S"u) {
+    while (maze.at(i).at(j) != "E"u) {
         maze~set_at(maze.at(i).set_at("!"u, j), i);
         (_, i, j) = info.at(i).at(j).untriple();
     };
