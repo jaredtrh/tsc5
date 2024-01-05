@@ -75,7 +75,7 @@ tuple init_tuple(tuple t, int n) asm """
             }
         }
         if (j > 0) {
-            (unvis, info) = push(maze, unvis, info, i, j, key - 1, i, j - 1);
+            ;;(unvis, info) = push(maze, unvis, info, i, j, key - 1, i, j - 1);
         }
         if (j + 1 < m) {
             (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j + 1);
