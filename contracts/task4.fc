@@ -9,7 +9,7 @@ forall X -> tuple single_tuple(X x) asm "SINGLE";
     
 }
 
-(cell, tuple) push(tuple maze, cell unvis, tuple info, int i, int j, int key, int ni, int nj) inline_ref {
+(cell, tuple) push(tuple maze, cell unvis, tuple info, int i, int j, int key, int ni, int nj) inline {
     int x = maze.at(ni).at(nj);
     if (x == "X"u) {
         key += 28629151;

@@ -1,5 +1,7 @@
 #include "imports/stdlib.fc";
 
+(slice, int) udict_get(cell dict, int key_len, int index) asm(index dict key_len) "DICTUGET";
+
 (slice, cell) load_data() inline {
     slice ds = get_data().begin_parse();
     return (ds~load_msg_addr(), ds.preload_dict());
@@ -133,6 +135,6 @@ cell get_users() method_id {
 
 int get_user_share(slice user_address) method_id {
     (_, int address) = user_address.parse_std_addr();
-    (slice us, _) = load_users().udict_get?(256, address);
-    return us.preload_uint(32);
+    (slice s, _) = load_users().udict_get(256, address);
+    return s.preload_uint(32);
 }
