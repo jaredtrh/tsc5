@@ -19,7 +19,7 @@ forall X -> tuple single_tuple(X x) asm "SINGLE";
     int oldkey = info.at(ni).at(nj).at(0);
     if (key < oldkey) {
         unvis~udict_delete?(30, oldkey);
-        unvis~udict_set_builder(30, key, begin_cell());
+        unvis~udict_add_builder?(30, key, begin_cell());
         info~set_at(info.at(ni).set_at(triple(key, i, j), nj), ni);
     }
     return (unvis, info);
@@ -45,7 +45,7 @@ tuple init_tuple(tuple t, int n) asm """
             if (x == "E"u) {
                 si = i;
                 sj = j;
-                unvis~udict_set_builder(30, i * 31 + j, begin_cell());
+                unvis~udict_add_builder?(30, i * 31 + j, begin_cell());
                 info~set_at(info.at(i).set_at(single(0), j), i);
                 i = -1;
                 j = -1;
