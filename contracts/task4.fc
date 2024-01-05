@@ -19,7 +19,7 @@ forall X -> tuple single_tuple(X x) asm "SINGLE";
     int oldkey = info.at(ni).at(nj).at(0);
     if (key < oldkey) {
         unvis~udict_delete?(30, oldkey);
-        unvis~udict_add_builder?(30, key, begin_cell());
+        unvis~udict_set_builder(30, key, begin_cell());
         info~set_at(info.at(ni).set_at(triple(key, i, j), nj), ni);
     }
     return (unvis, info);
@@ -45,7 +45,7 @@ tuple init_tuple(tuple t, int n) asm """
             if (x == "E"u) {
                 si = i;
                 sj = j;
-                unvis~udict_add_builder?(30, i * 31 + j, begin_cell());
+                unvis~udict_set_builder(30, i * 31 + j, begin_cell());
                 info~set_at(info.at(i).set_at(single(0), j), i);
                 i = -1;
                 j = -1;
@@ -64,13 +64,14 @@ tuple init_tuple(tuple t, int n) asm """
         key += 961;
 
         if (i > 0) {
+            int ni = i - 1;
             int nkey = key - 31;
             if (j > 0) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, i - 1, j - 1);
+                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, ni, j - 1);
             }
-            (unvis, info) = push(maze, unvis, info, i, j, nkey, i - 1, j);
+            (unvis, info) = push(maze, unvis, info, i, j, nkey, ni, j);
             if (j + 1 < m) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, i - 1, j + 1);
+                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, ni, j + 1);
             }
         }
         if (j > 0) {
@@ -80,13 +81,14 @@ tuple init_tuple(tuple t, int n) asm """
             (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j + 1);
         }
         if (i + 1 < n) {
+            int ni = i + 1
             int nkey = key + 31;
             if (j > 0) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, i + 1, j - 1);
+                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, ni, j - 1);
             }
-            (unvis, info) = push(maze, unvis, info, i, j, nkey, i + 1, j);
+            (unvis, info) = push(maze, unvis, info, i, j, nkey, ni, j);
             if (j + 1 < m) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, i + 1, j + 1);
+                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, ni, j + 1);
             }
         }
     } until (maze.at(i).at(j) == "S"u);
