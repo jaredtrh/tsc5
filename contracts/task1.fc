@@ -45,7 +45,7 @@
         send_raw_message(
             begin_cell()
                 .store_uint(0x10, 6)
-                .store_slice(ds~load_msg_addr())
+                .store_slice(ds.preload_bits(267))
                 .store_coins(0)
                 .store_uint(0, 107)
                 .end_cell(),
