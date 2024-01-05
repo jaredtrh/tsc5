@@ -9,7 +9,7 @@ forall X -> tuple single_tuple(X x) asm "SINGLE";
     
 }
 
-(cell, tuple) push(tuple maze, cell unvis, tuple info, int i, int j, int key, int ni, int nj) inline {
+(cell, tuple) push(tuple maze, cell unvis, tuple info, tuple info_row, int i, int j, int key, int ni, int nj) inline {
     int x = maze.at(ni).at(nj);
     if (x == "X"u) {
         key += 28629151;
@@ -20,7 +20,7 @@ forall X -> tuple single_tuple(X x) asm "SINGLE";
     if (key < oldkey) {
         unvis~udict_delete?(30, oldkey);
         unvis~udict_set_builder(30, key, begin_cell());
-        info~set_at(info.at(ni).set_at(triple(key, i, j), nj), ni);
+        info~set_at(info_row.set_at(triple(key, i, j), nj), ni);
     }
     return (unvis, info);
 }
@@ -73,29 +73,38 @@ tuple init_tuple(tuple t, int n) asm """
         if (i > 0) {
             int ni = i - 1;
             int nkey = key - 31;
+            tuple info_row = info.at(ni);
+            (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey, ni, j);
             if (j>0) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, ni, j-1);
-            }
-            (unvis, info) = push(maze, unvis, info, i, j, nkey, ni, j);
-            if (j<m) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, ni, j+1);
+                (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey - 1, ni, j-1);
+                if (j<m) {
+                    (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey + 1, ni, j+1);
+                }
+            } else {
+                (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey + 1, ni, j+1);
             }
         }
+        tuple info_row = info.at(i);
         if (j>0) {
-            (unvis, info) = push(maze, unvis, info, i, j, key - 1, i, j-1);
-        }
-        if (j<m) {
-            (unvis, info) = push(maze, unvis, info, i, j, key + 1, i, j+1);
+            (unvis, info) = push(maze, unvis, info, info_row, i, j, key - 1, i, j-1);
+            if (j<m) {
+                (unvis, info) = push(maze, unvis, info, info_row, i, j, key + 1, i, j+1);
+            }
+        } else {
+            (unvis, info) = push(maze, unvis, info, info_row, i, j, key + 1, i, j+1);
         }
         if (i < n) {
             int ni = i + 1;
             int nkey = key + 31;
+            tuple info_row = info.at(ni);
+            (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey, ni, j);
             if (j>0) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey - 1, ni, j-1);
-            }
-            (unvis, info) = push(maze, unvis, info, i, j, nkey, ni, j);
-            if (j<m) {
-                (unvis, info) = push(maze, unvis, info, i, j, nkey + 1, ni, j+1);
+                (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey - 1, ni, j-1);
+                if (j<m) {
+                    (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey + 1, ni, j+1);
+                }
+            } else {
+                (unvis, info) = push(maze, unvis, info, info_row, i, j, nkey + 1, ni, j+1);
             }
         }
     } until (maze.at(i).at(j) == "S"u);
