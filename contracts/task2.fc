@@ -43,7 +43,6 @@
         (_, int address) = s.parse_std_addr();
 
         throw_unless(121, users~udict_delete?(256, address));
-
         store_data(admin_address, users);
     } elseif (op == 0x068530b3) {
         throw_if(122, users.dict_empty?());

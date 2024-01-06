@@ -18,16 +18,14 @@
         int public_key = ds~load_uint(256);
         int execution_time = ds~load_uint(32);
         slice receiver = ds~load_msg_addr();
-        int seqno = ds.preload_uint(32);
-        
-        throw_if(119, new_seqno != seqno + 1);
+
+        throw_if(119, new_seqno != ds.preload_uint(32) + 1);
         throw_unless(120, check_signature(ref.cell_hash(), signature, public_key));
         throw_if(121, locked_for <= 0);
         int time = now();
         throw_if(122, execution_time < time);
         int new_execution_time = time + locked_for;
         throw_if(123, new_execution_time < execution_time);
-        accept_message();
 
         set_data(
             begin_cell()
@@ -46,8 +44,7 @@
             begin_cell()
                 .store_uint(0x10, 6)
                 .store_slice(ds~load_msg_addr())
-                .store_coins(0)
-                .store_uint(0, 107)
+                .store_uint(0, 111)
                 .end_cell(),
             128
         );
