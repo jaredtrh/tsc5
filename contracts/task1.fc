@@ -26,6 +26,7 @@
         throw_if(122, execution_time < time);
         int new_execution_time = time + locked_for;
         throw_if(123, new_execution_time < execution_time);
+        accept_message();
 
         set_data(
             begin_cell()
