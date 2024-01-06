@@ -112,9 +112,7 @@
                     c.store_coins(muldiv(val, amount, total_share))
                     .store_builder(d)
                     .store_builder(d)
-                    .store_uint(0, 1)
-                    .store_coins(1)
-                    .store_uint(0, 1)
+                    .store_uint(0x202, 14)
                     .end_cell()
                 )
                 .end_cell(),
